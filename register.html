@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join SmartRent</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <main class="auth-container">
+        <div class="card auth-card">
+            <div class="brand-header">
+                <h1>Create Account</h1>
+                <p>Join your house</p>
+            </div>
+
+            <form id="register-form">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-name" placeholder="John Doe" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="reg-email" placeholder="student@maseno.ac.ke" required>
+                </div>
+
+                <div class="input-group">
+                    <label>House Code (From Landlord)</label>
+                    <input type="text" id="reg-code" placeholder="e.g. ROOM-1-KEY" required style="border-color: var(--primary-color);">
+                    <small style="color: gray; font-size: 0.8rem;">Ask your caretaker for this code.</small>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" placeholder="••••••••" required>
+                </div>
+
+                <div id="error-message" class="error-hidden"></div>
+
+                <button type="submit" class="btn-primary">Register & Join</button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Already have an account? <a href="index.html">Login here</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/register.js"></script>
+</body>
+</html>
