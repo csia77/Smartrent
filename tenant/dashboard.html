@@ -3,9 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>My Home | SmartRent</title>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
+
+    <nav class="navbar">
+        <div class="logo">SmartRent Resident</div>
+        <button id="logout-btn" class="btn-text">Logout</button>
+    </nav>
+
+    <main class="dashboard-container">
+        
+        <section class="card full-width">
+            <h2 id="welcome-msg">Welcome back...</h2>
+            <p class="text-muted">Here is your current lease status.</p>
+        </section>
+
+        <div id="house-details-container" style="display: none;">
+            <section class="card full-width">
+                <h3>🏠 My Apartment</h3>
+                
+                <div style="display: flex; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">
+                    <div>
+                        <small>PROPERTY NAME</small>
+                        <h4 id="house-name" style="font-size: 1.2rem;">Loading...</h4>
+                    </div>
+                    
+                    <div>
+                        <small>MONTHLY RENT</small>
+                        <h4 id="house-rent" style="font-size: 1.2rem; color: var(--primary-color);">...</h4>
+                    </div>
+
+                    <div>
+                        <small>STATUS</small>
+                        <span id="house-status" class="badge">Active</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <section class="card full-width" style="margin-top: 2rem;">
+    <h3>💰 Rent Payments</h3>
+    
+    <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h4>Record a New Payment</h4>
+        <form id="payment-form" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+            
+            <div style="flex: 1;">
+                <label style="font-size: 0.9rem;">Amount (KES)</label>
+                <input type="number" id="pay-amount" placeholder="e.g. 15000" required 
+                       style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <div style="flex: 1;">
+                <label style="font-size: 0.9rem;">Transaction Code (M-Pesa/Bank)</label>
+                <input type="text" id="pay-ref" placeholder="e.g. QXJ892..." required 
+                       style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <button type="submit" class="btn-primary" style="height: 38px;">Submit Payment</button>
+        </form>
+    </div>
+
+    <h4>Payment History</h4>
+    <table class="data-table" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="background: #eee; text-align: left;">
+                <th style="padding: 0.5rem;">Date</th>
+                <th style="padding: 0.5rem;">Code</th>
+                <th style="padding: 0.5rem;">Amount</th>
+                <th style="padding: 0.5rem;">Status</th>
+            </tr>
+        </thead>
+        <tbody id="payment-list">
+            </tbody>
+    </table>
+</section>
+
+        <div id="no-house-msg" class="card error-visible" style="display: none;">
+            You are not linked to any house yet. Please contact your landlord with your email.
+        </div>
+
+    </main>
+
     
 </body>
+<script type="module" src="tenant.js"></script>
 </html>
