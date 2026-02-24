@@ -50,7 +50,7 @@ registerForm.addEventListener("submit", async (e) => {
             role: "tenant",
             houseId: houseId,   // LINKED!
             balance: 0          // Start with 0 debt
-        });
+        }); 
 
         // 5. UPDATE HOUSE (Add tenant to the list)
         // arrayUnion ensures we don't add duplicates

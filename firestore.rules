@@ -1,19 +1,49 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // This rule allows anyone with your Firestore database reference to view, edit,
-    // and delete all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // all client requests to your Firestore database will be denied until you Update
-    // your rules
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2026, 2, 20);
+    // --- HELPER FUNCTIONS ---    
+    // These make our rules easy to read
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      // Checks if the logged-in user's role is 'admin' in the users collection
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- 1. USERS COLLECTION ---
+    match /users/{userId} {
+      // You can read your own profile. Admins can read everyone's.
+      allow read: if isOwner(userId) || isAdmin();
+      // You can create your profile when you register
+      allow create: if isOwner(userId);
+      // You can update your own profile, Admins can update any
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // --- 2. HOUSES COLLECTION ---
+    match /houses/{houseId} {
+      // Anyone logged in can read houses (Tenants need this to verify the House Code)
+      allow read: if isSignedIn();
+      // Only Admins can create or delete houses
+      allow create, delete: if isAdmin();
+      // Tenants need to update the house when they join (adding their ID to tenantIds array)
+      allow update: if isSignedIn(); 
+    }
+
+    // --- 3. PAYMENTS COLLECTION ---
+    match /payments/{paymentId} {
+      // Tenants see only their own payments. Admins see all.
+      allow read: if isAdmin() || (isSignedIn() && resource.data.tenantId == request.auth.uid);
+      // Tenants can only submit payments linked to their own user ID
+      allow create: if isSignedIn() && request.resource.data.tenantId == request.auth.uid;
+      // Only Admins can update (to approve/reject) or delete payments
+      allow update, delete: if isAdmin();
     }
   }
 }
