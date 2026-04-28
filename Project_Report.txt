@@ -1,0 +1,26 @@
+Project Report Nyumbani Rental Management System
+
+Executive Summary
+The Nyumbani Rental Management System is a full stack web application designed to digitize and streamline the property management process. Built with a focus on simplicity and real time collaboration, the platform serves two primary users Landlords and Tenants. The goal of the project was to move away from manual spreadsheets and create a centralized hub where landlords can track their properties and revenue, while tenants can easily view their lease details, receive invoices, and submit payment records.
+
+Core Features Developed
+Role Based Access Control. The application securely segregates users into Admins and Tenants upon login. Each role is directed to a custom dashboard tailored to their specific needs.
+Admin Dashboard and Property Management. Admins can digitally create properties, set monthly rent amounts, and generate a unique Secret Code for each unit. There is a real time ledger of all tenants, displaying their contact information and current occupancy status. Admins can select active tenants from a dropdown and generate monthly rent invoices. When a tenant submits an M Pesa transaction code, it appears on the Admin Payments board. The Admin can verify the funds and click Approve to clear the tenant balance.
+Tenant Portal. Instead of the Admin manually typing in tenant data, tenants can self register using their email and the Secret Code provided by the landlord. This securely links their new account to the correct physical property. Tenants can submit their transaction reference codes directly through the app. The status dynamically updates from Pending to Approved the moment the Admin verifies it.
+
+Technology Stack
+We chose a lightweight and highly performant technology stack to ensure the application remains fast and easy to maintain.
+Frontend uses Vanilla HTML CSS and JavaScript. By avoiding heavy frameworks in the initial prototype, the application loads incredibly fast and serves as a fantastic learning foundation.
+Styling and UI uses a custom responsive CSS architecture using modern Flexbox and Grid layouts. The design language utilizes a vibrant blue and green color palette, soft shadows, and clean typography to achieve a premium and trustworthy look.
+Backend Database is Google Firebase Firestore. A NoSQL cloud database that allows the application to sync data in real time across all connected devices.
+Authentication uses Firebase Authentication to securely manage user passwords, registration, and login sessions.
+Continuous Integration and Hosting uses GitHub Actions and Firebase Hosting. The codebase is version controlled via Git. Any new code pushed to the main branch automatically triggers a secure robot that builds and deploys the latest version of the site live to the internet.
+
+Architectural Highlights
+We heavily utilized Firestore real time listeners. For example, if an Admin marks an invoice as Paid, the Tenant screen updates instantly without them needing to refresh the page. We implemented strict Firestore security rules. Even if a malicious user tries to access the database, the rules ensure that Tenants can absolutely only read their own financial records, completely isolating tenant data from one another.
+
+Future Roadmap
+As the application scales, the following milestones are planned for future development.
+Integrating the M Pesa API or Stripe so that transactions are verified automatically without the Admin needing to click Approve.
+A messaging portal where tenants can report broken utilities directly to the caretaker.
+As the interface becomes more complex, migrating the Vanilla JavaScript frontend to a component based framework like React to improve code reusability.
