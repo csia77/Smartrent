@@ -58,13 +58,14 @@ async function loadTenantData(userId) {
 
         if (houseSnap.exists()) {
             const houseData = houseSnap.data();
+            currentHouseId = userData.houseId; // Set the global variable
             
             // C. Update UI
             houseNameEl.innerText = houseData.name;
             houseRentEl.innerText = `KES ${houseData.rent}`;
             houseStatusEl.innerText = "Occupied"; // Since they are logged in, it's occupied by them!
-            
-            houseContainer.style.display = "block"; // Show the card
+             
+             houseContainer.style.display = "block"; // Show the card
         } else {
             console.error("House data not found!");
             noHouseMsg.innerText = "Error: Your linked house no longer exists.";

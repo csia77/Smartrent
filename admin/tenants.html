@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenants | Nyumbani</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon"><i class="fa-solid fa-u"></i></div>
+            NYUMBANI
+        </div>
+        <div class="user-profile">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="User">
+            <div class="name" id="sidebar-username">admin</div>
+            <i class="fa-solid fa-chevron-right text-muted"></i>
+        </div>
+        <div class="menu-section">
+            <div class="menu-title">--- MAIN MENU</div>
+            <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+            <a href="houses.html" class="menu-item"><i class="fa-solid fa-building"></i> Houses</a>
+            <a href="tenants.html" class="menu-item active"><i class="fa-solid fa-users"></i> Tenants</a>
+            <a href="invoices.html" class="menu-item"><i class="fa-solid fa-credit-card"></i> Invoices</a>
+            <a href="payments.html" class="menu-item"><i class="fa-solid fa-money-bill-wave"></i> Payments</a>
+            <a href="messages.html" class="menu-item"><i class="fa-solid fa-envelope"></i> Messages</a>
+            
+            <div class="menu-title" style="margin-top: 1.5rem;">--- OTHER</div>
+            <a href="#" class="menu-item"><i class="fa-solid fa-gear"></i> Accounts</a>
+            <a href="#" id="logout-btn" class="menu-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</a>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="topbar">
+            <div class="topbar-left">
+                <i class="fa-solid fa-circle-arrow-left" style="font-size: 1.2rem; cursor: pointer;"></i>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search...">
+                    <i class="fa-solid fa-magnifying-glass" style="color: #333;"></i>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <i class="fa-solid fa-gear" style="font-size: 1.2rem; cursor: pointer;"></i>
+            </div>
+        </header>
+
+        <main class="content-area">
+            <div class="page-header">
+                <div class="page-title">Manage Tenants</div>
+                <div class="breadcrumbs">
+                    <a href="dashboard.html">Dashboard</a> / <span>Tenants</span>
+                </div>
+            </div>
+
+            <div class="white-card">
+                <div class="card-title">CURRENT TENANTS LISTING</div>
+                
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr style="background: #f4f6f9;">
+                                <th>Name <i class="fa-solid fa-sort"></i></th>
+                                <th>Email <i class="fa-solid fa-sort"></i></th>
+                                <th>House <i class="fa-solid fa-sort"></i></th>
+                                <th>Status <i class="fa-solid fa-sort"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tenant-list-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script type="module" src="tenants.js"></script>
+</body>
+</html>

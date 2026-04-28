@@ -1,120 +1,72 @@
-// admin/admin.js
-console.log("1. Admin JS file has started loading...");
-
-// 1. IMPORT CONFIG (Added 'db' here)
 import { auth, db } from "../js/firebase-config.js";
-
-// 2. IMPORT AUTH FUNCTIONS
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { collection, query, where, getDocs, onSnapshot, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 3. IMPORT FIRESTORE FUNCTIONS (This was missing!)
-import { 
-    collection, 
-    addDoc, 
-    getDocs 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-console.log("2. Imports successful. Firebase Auth & Firestore loaded.");
-
-// --- LOGOUT LOGIC ---
-const logoutBtn = document.getElementById("logout-btn");
-
-if (logoutBtn) {
-    logoutBtn.addEventListener("click", async () => {
-        console.log("Logout Clicked");
-        try {
-            await signOut(auth);
-            alert("Logged out successfully.");
-            window.location.href = "../index.html"; 
-        } catch (error) {
-            console.error("Logout Error:", error);
-            alert("Logout failed: " + error.message);
-        }
-    });
-} else {
-    console.error("CRITICAL: Logout button not found.");
-}
-
-// --- AUTH STATE LISTENER ---
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log("Admin logged in:", user.email);
-    } else {
-        console.log("No user. Redirecting...");
-        window.location.href = "../index.html";
-    }
+    if (!user) { window.location.href = "../index.html"; }
 });
 
-// --- HOUSE MANAGEMENT LOGIC ---
+document.getElementById("logout-btn").addEventListener("click", () => {
+    signOut(auth).then(() => { window.location.href = "../index.html"; });
+});
 
-const addHouseForm = document.getElementById("add-house-form");
-const houseListBody = document.getElementById("house-list-body");
+// --- DASHBOARD STATS LOGIC ---
+const statHouses = document.getElementById("stat-houses");
+const statTenants = document.getElementById("stat-tenants");
+const statInvoices = document.getElementById("stat-invoices");
+const recentActivityBody = document.getElementById("recent-activity-body");
 
-// 1. CREATE HOUSE
-if (addHouseForm) {
-    addHouseForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const name = document.getElementById("house-name").value;
-        const rent = document.getElementById("house-rent").value;
-        const code = document.getElementById("house-code").value;
-
-        try {
-            console.log("Attempting to add house...");
-            
-            // Add to "houses" collection in Firestore
-            const docRef = await addDoc(collection(db, "houses"), {
-                name: name,
-                rent: Number(rent),
-                code: code,
-                status: "vacant", // Default status
-                tenantIds: []     // No tenants yet
-            });
-
-            console.log("House created with ID: ", docRef.id);
-            alert(`Success! House ${name} created. Code: ${code}`);
-            
-            // Clear form
-            addHouseForm.reset();
-            
-            // Refresh the list immediately
-            loadHouses(); 
-
-        } catch (error) {
-            console.error("Error adding house: ", error);
-            alert("Error creating house. Check console.");
-        }
-    });
-} else {
-    console.error("CRITICAL: Add House Form not found in HTML");
-}
-
-// 2. READ HOUSES (Display them in the table)
-async function loadHouses() {
-    if (!houseListBody) return; // Safety check
-
-    houseListBody.innerHTML = ""; // Clear current list
-    
+async function loadDashboardStats() {
     try {
-        const querySnapshot = await getDocs(collection(db, "houses"));
+        // Get Houses Count
+        const housesSnap = await getDocs(collection(db, "houses"));
+        if(statHouses) statHouses.innerText = housesSnap.size;
+
+        // Get Tenants Count
+        const tenantsQuery = query(collection(db, "users"), where("role", "==", "tenant"));
+        const tenantsSnap = await getDocs(tenantsQuery);
+        if(statTenants) statTenants.innerText = tenantsSnap.size;
+
+        // Get Invoices Count
+        const invoicesSnap = await getDocs(collection(db, "invoices"));
+        if(statInvoices) statInvoices.innerText = invoicesSnap.size;
         
-        querySnapshot.forEach((doc) => {
-            const house = doc.data();
-            
-            const row = `
-                <tr>
-                    <td>${house.name}</td>
-                    <td><span class="badge" style="background:#eee; padding: 2px 6px; border-radius: 4px;">${house.code}</span></td>
-                    <td>KES ${house.rent}</td>
-                    <td>${house.status}</td>
-                </tr>
-            `;
-            houseListBody.innerHTML += row;
-        });
     } catch (error) {
-        console.error("Error loading houses:", error);
+        console.error("Error loading dashboard stats:", error);
     }
 }
 
-// 3. Load houses when page opens
-loadHouses();
+function loadRecentActivity() {
+    if(!recentActivityBody) return;
+    
+    // We will show recent payments as "Transactions"
+    const q = query(collection(db, "payments"), orderBy("date", "desc"), limit(5));
+    
+    onSnapshot(q, (snapshot) => {
+        recentActivityBody.innerHTML = "";
+        
+        if(snapshot.empty) {
+            recentActivityBody.innerHTML = "<tr><td colspan='2' style='padding: 1rem;'>No recent activity</td></tr>";
+            return;
+        }
+
+        snapshot.forEach((docSnap) => {
+            const pay = docSnap.data();
+            const dateStr = pay.date ? pay.date.toDate().toLocaleString() : "Just now";
+            
+            const actionText = `Tenant submitted payment (Ref: ${pay.refCode}) for KES ${pay.amount}`;
+            
+            const row = `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 1rem;">${actionText}</td>
+                    <td style="padding: 1rem; color: var(--text-muted);">${dateStr}</td>
+                </tr>
+            `;
+            recentActivityBody.innerHTML += row;
+        });
+    });
+}
+
+// Init Dashboard
+loadDashboardStats();
+loadRecentActivity();

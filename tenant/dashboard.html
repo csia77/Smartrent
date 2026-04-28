@@ -3,90 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Home | SmartRent</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <title>Tenant Dashboard | Nyumbani</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="logo">SmartRent Resident</div>
-        <button id="logout-btn" class="btn-text">Logout</button>
-    </nav>
+<div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon"><i class="fa-solid fa-u"></i></div>
+            NYUMBANI
+        </div>
+        <div class="user-profile">
+            <img src="https://ui-avatars.com/api/?name=Tenant&background=random" alt="User">
+            <div class="name" id="sidebar-username">tenant</div>
+            <i class="fa-solid fa-chevron-right text-muted"></i>
+        </div>
+        <div class="menu-section">
+            <div class="menu-title">--- MAIN MENU</div>
+            <a href="#" class="menu-item active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+            <a href="#" class="menu-item"><i class="fa-solid fa-building"></i> My Apartment</a>
+            <a href="#" class="menu-item"><i class="fa-solid fa-money-bill-wave"></i> Payments</a>
+            <a href="#" class="menu-item"><i class="fa-solid fa-envelope"></i> Messages</a>
+            
+            <div class="menu-title" style="margin-top: 1.5rem;">--- OTHER</div>
+            <a href="#" class="menu-item"><i class="fa-solid fa-gear"></i> Accounts</a>
+            <a href="#" id="logout-btn" class="menu-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</a>
+        </div>
+    </aside>
 
-    <main class="dashboard-container">
-        
-        <section class="card full-width">
-            <h2 id="welcome-msg">Welcome back...</h2>
-            <p class="text-muted">Here is your current lease status.</p>
-        </section>
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <i class="fa-solid fa-circle-arrow-left" style="font-size: 1.2rem; cursor: pointer;"></i>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search...">
+                    <i class="fa-solid fa-magnifying-glass" style="color: #333;"></i>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <i class="fa-solid fa-gear" style="font-size: 1.2rem; cursor: pointer;"></i>
+            </div>
+        </header>
 
-        <div id="house-details-container" style="display: none;">
-            <section class="card full-width">
-                <h3>🏠 My Apartment</h3>
-                
-                <div style="display: flex; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">
-                    <div>
-                        <small>PROPERTY NAME</small>
-                        <h4 id="house-name" style="font-size: 1.2rem;">Loading...</h4>
-                    </div>
-                    
-                    <div>
-                        <small>MONTHLY RENT</small>
-                        <h4 id="house-rent" style="font-size: 1.2rem; color: var(--primary-color);">...</h4>
-                    </div>
+        <!-- Content Area -->
+        <main class="content-area">
+            <div class="page-header">
+                <div class="page-title" id="welcome-msg">Hujambo tenant,</div>
+                <div class="breadcrumbs">
+                    <a href="#">Dashboard</a> / <span>Home</span>
+                </div>
+            </div>
 
-                    <div>
-                        <small>STATUS</small>
-                        <span id="house-status" class="badge">Active</span>
+            <!-- Dashboard Content -->
+            
+            <div id="house-details-container" style="display: none;">
+                <div class="white-card">
+                    <h3 class="card-title">🏠 My Apartment Details</h3>
+                    <div style="display: flex; gap: 3rem; margin-top: 1rem; flex-wrap: wrap;">
+                        <div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">PROPERTY NAME</div>
+                            <div id="house-name" style="font-size: 1.5rem; font-weight: 500;">Loading...</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">MONTHLY RENT</div>
+                            <div id="house-rent" style="font-size: 1.5rem; font-weight: 500; color: var(--primary-blue);">...</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">STATUS</div>
+                            <span id="house-status" style="background: var(--primary-green); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem;">Active</span>
+                        </div>
                     </div>
                 </div>
-            </section>
-        </div>
-        <section class="card full-width" style="margin-top: 2rem;">
-    <h3>💰 Rent Payments</h3>
-    
-    <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-        <h4>Record a New Payment</h4>
-        <form id="payment-form" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
-            
-            <div style="flex: 1;">
-                <label style="font-size: 0.9rem;">Amount (KES)</label>
-                <input type="number" id="pay-amount" placeholder="e.g. 15000" required 
-                       style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
             </div>
 
-            <div style="flex: 1;">
-                <label style="font-size: 0.9rem;">Transaction Code (M-Pesa/Bank)</label>
-                <input type="text" id="pay-ref" placeholder="e.g. QXJ892..." required 
-                       style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+            <div class="white-card" style="margin-top: 2rem;">
+                <h3 class="card-title">💰 Rent Payments</h3>
+                
+                <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+                    <h4 style="margin-top: 0; margin-bottom: 1rem;">Record a New Payment</h4>
+                    <form id="payment-form" style="display: flex; gap: 1.5rem; align-items: flex-end; flex-wrap: wrap;">
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label>Amount (KES)</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fa-solid fa-money-bill"></i>
+                                <input type="number" id="pay-amount" class="form-control" placeholder="e.g. 15000" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label>Transaction Code (M-Pesa/Bank)</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fa-solid fa-receipt"></i>
+                                <input type="text" id="pay-ref" class="form-control" placeholder="e.g. QXJ892..." required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success" style="height: 45px; padding: 0 2rem;"><i class="fa-solid fa-plus"></i> Submit Payment</button>
+                    </form>
+                </div>
+
+                <h4 style="margin-bottom: 1rem;">Payment History</h4>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr style="background: #f4f6f9;">
+                                <th>Date <i class="fa-solid fa-sort"></i></th>
+                                <th>Code <i class="fa-solid fa-sort"></i></th>
+                                <th>Amount <i class="fa-solid fa-sort"></i></th>
+                                <th>Status <i class="fa-solid fa-sort"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody id="payment-list">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <button type="submit" class="btn-primary" style="height: 38px;">Submit Payment</button>
-        </form>
+            <div id="no-house-msg" class="white-card" style="display: none; border-left: 4px solid var(--primary-red);">
+                <div style="color: var(--primary-red); font-weight: 500;"><i class="fa-solid fa-circle-exclamation"></i> Action Required</div>
+                <p style="margin-top: 5px;">You are not linked to any house yet. Please contact your landlord with your email to get assigned.</p>
+            </div>
+
+        </main>
     </div>
+</div>
 
-    <h4>Payment History</h4>
-    <table class="data-table" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
-        <thead>
-            <tr style="background: #eee; text-align: left;">
-                <th style="padding: 0.5rem;">Date</th>
-                <th style="padding: 0.5rem;">Code</th>
-                <th style="padding: 0.5rem;">Amount</th>
-                <th style="padding: 0.5rem;">Status</th>
-            </tr>
-        </thead>
-        <tbody id="payment-list">
-            </tbody>
-    </table>
-</section>
-
-        <div id="no-house-msg" class="card error-visible" style="display: none;">
-            You are not linked to any house yet. Please contact your landlord with your email.
-        </div>
-
-    </main>
-
-    
-</body>
 <script type="module" src="tenant.js"></script>
+</body>
 </html>

@@ -45,5 +45,20 @@ service cloud.firestore {
       // Only Admins can update (to approve/reject) or delete payments
       allow update, delete: if isAdmin();
     }
+
+    // --- 4. INVOICES COLLECTION ---
+    match /invoices/{invoiceId} {
+      // Tenants see only their own invoices. Admins see all.
+      allow read: if isAdmin() || (isSignedIn() && resource.data.tenantId == request.auth.uid);
+      // Only Admins can manage invoices
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- 5. MESSAGES COLLECTION ---
+    match /messages/{messageId} {
+      // Users can read/write their own messages. Admin can read/write all.
+      allow read, write: if isAdmin() || (isSignedIn() && resource.data.senderId == request.auth.uid) || (isSignedIn() && resource.data.receiverId == request.auth.uid);
+      allow create: if isSignedIn();
+    }
   }
 }

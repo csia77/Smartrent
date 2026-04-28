@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Nyumbani</title>
+    <title>Payments | Nyumbani</title>
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -22,11 +22,11 @@
         </div>
         <div class="menu-section">
             <div class="menu-title">--- MAIN MENU</div>
-            <a href="dashboard.html" class="menu-item active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+            <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-gauge"></i> Dashboard</a>
             <a href="houses.html" class="menu-item"><i class="fa-solid fa-building"></i> Houses</a>
             <a href="tenants.html" class="menu-item"><i class="fa-solid fa-users"></i> Tenants</a>
             <a href="invoices.html" class="menu-item"><i class="fa-solid fa-credit-card"></i> Invoices</a>
-            <a href="payments.html" class="menu-item"><i class="fa-solid fa-money-bill-wave"></i> Payments</a>
+            <a href="payments.html" class="menu-item active"><i class="fa-solid fa-money-bill-wave"></i> Payments</a>
             <a href="messages.html" class="menu-item"><i class="fa-solid fa-envelope"></i> Messages</a>
             
             <div class="menu-title" style="margin-top: 1.5rem;">--- OTHER</div>
@@ -51,66 +51,34 @@
 
         <main class="content-area">
             <div class="page-header">
-                <div class="page-title">Hey admin!</div>
+                <div class="page-title">Verify Payments</div>
                 <div class="breadcrumbs">
-                    <a href="dashboard.html">Dashboard</a> / <span>Home</span>
+                    <a href="dashboard.html">Dashboard</a> / <span>Payments</span>
                 </div>
             </div>
 
-            <div class="card-grid-3">
-                <div class="widget-card widget-green">
-                    <div class="top-row">
-                        <i class="fa-solid fa-building"></i>
-                        <span class="value" id="stat-houses">0</span>
-                    </div>
-                    <div class="title">Houses</div>
-                    <div class="actions">
-                        <a href="houses.html"><i class="fa-solid fa-eye"></i> View details</a>
-                    </div>
-                </div>
-                <div class="widget-card widget-purple">
-                    <div class="top-row">
-                        <i class="fa-solid fa-users"></i>
-                        <span class="value" id="stat-tenants">0</span>
-                    </div>
-                    <div class="title">Tenants</div>
-                    <div class="actions">
-                        <a href="tenants.html"><i class="fa-solid fa-eye"></i> View details</a>
-                    </div>
-                </div>
-                <div class="widget-card widget-teal">
-                    <div class="top-row">
-                        <i class="fa-solid fa-credit-card"></i>
-                        <span class="value" id="stat-invoices">0</span>
-                    </div>
-                    <div class="title">Invoices</div>
-                    <div class="actions">
-                        <a href="invoices.html"><i class="fa-solid fa-eye"></i> View details</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dashboard specific summary (recent transactions) could go here -->
             <div class="white-card">
-                <div class="card-title">LATEST TRANSACTIONS</div>
+                <div class="card-title">RECENT TRANSACTIONS</div>
                 <table class="data-table">
                     <thead>
                         <tr style="background: #f4f6f9;">
-                            <th>Action Description</th>
-                            <th>Time</th>
+                            <th>Date</th>
+                            <th>Tenant</th>
+                            <th>Ref Code</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody id="recent-activity-body">
-                        <!-- Populated by JS later -->
-                        <tr><td colspan="2">No recent activity</td></tr>
+                    <tbody id="payments-list-body">
+                        <!-- Injected by JS -->
                     </tbody>
                 </table>
             </div>
-
         </main>
     </div>
 </div>
 
-<script type="module" src="admin.js"></script>
+<script type="module" src="payments.js"></script>
 </body>
 </html>
