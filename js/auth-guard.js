@@ -395,3 +395,92 @@ document.addEventListener("click", (e) => {
         openCatalogue();
     }
 });
+
+// --- MOBILE SIDEBAR RESPONSIVE & BACKDROP OVERLAY ---
+function injectSidebarBackdrop() {
+    if (document.getElementById("sidebar-backdrop")) return;
+    const backdrop = document.createElement("div");
+    backdrop.id = "sidebar-backdrop";
+    backdrop.className = "sidebar-backdrop";
+    document.body.appendChild(backdrop);
+}
+
+// Automatically label table columns for card-based display on mobile viewports
+function autoLabelTables() {
+    const tables = document.querySelectorAll(".data-table");
+    tables.forEach((table) => {
+        const headers = Array.from(table.querySelectorAll("thead th")).map(th => th.textContent.trim());
+        const rows = table.querySelectorAll("tbody tr");
+        rows.forEach((row) => {
+            const cells = row.querySelectorAll("td");
+            cells.forEach((cell, index) => {
+                if (headers[index]) {
+                    cell.setAttribute("data-label", headers[index]);
+                }
+            });
+        });
+    });
+}
+
+// Centralized observer to label dynamic table contents automatically
+function setupTableAutoLabelObserver() {
+    const observer = new MutationObserver((mutations) => {
+        let shouldProcess = false;
+        for (const mutation of mutations) {
+            if (mutation.addedNodes.length > 0) {
+                shouldProcess = true;
+                break;
+            }
+        }
+        if (shouldProcess) {
+            autoLabelTables();
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    
+    autoLabelTables();
+}
+
+function initMobileResponsive() {
+    injectSidebarBackdrop();
+    setupTableAutoLabelObserver();
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initMobileResponsive);
+} else {
+    initMobileResponsive();
+}
+
+// Capture-phase listener to override page-level toggle listeners and handle backdrop transitions
+document.addEventListener("click", (e) => {
+    const toggle = e.target.closest(".sidebar-toggle");
+    if (toggle) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        
+        const sidebar = document.querySelector(".sidebar");
+        const backdrop = document.getElementById("sidebar-backdrop");
+        if (sidebar) {
+            sidebar.classList.toggle("open");
+            if (backdrop) {
+                backdrop.classList.toggle("active");
+            }
+        }
+        return;
+    }
+
+    const backdrop = e.target.closest("#sidebar-backdrop");
+    if (backdrop) {
+        const sidebar = document.querySelector(".sidebar");
+        if (sidebar) {
+            sidebar.classList.remove("open");
+        }
+        backdrop.classList.remove("active");
+        return;
+    }
+}, true); // True for Capture phase
