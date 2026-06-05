@@ -1,97 +1,107 @@
-import { auth, db } from "../js/firebase-config.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// payments.js - payment verification
+import { db } from "../js/firebase-config.js";
+import { guardPage, setupLogout, showToast } from "../js/auth-guard.js";
+import {
+    collection, query, orderBy, onSnapshot, doc, updateDoc, where, getDocs
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-onAuthStateChanged(auth, (user) => {
-    if (!user) { window.location.href = "../index.html"; }
+const tbody = document.getElementById("payments-list-body");
+const tenantsCache = {};
+
+guardPage("admin", async (user, userData) => {
+    const name = document.getElementById("sidebar-username");
+    if (name) name.textContent = userData.name || "Admin";
+
+    // Load tenant names into cache
+    try {
+        const snap = await getDocs(query(collection(db, "users"), where("role", "==", "tenant")));
+        snap.forEach(d => { tenantsCache[d.id] = d.data().name; });
+    } catch (e) {
+        console.error("Error loading tenants cache:", e);
+    }
+
+    loadPayments();
 });
 
-document.getElementById("logout-btn").addEventListener("click", () => {
-    signOut(auth).then(() => { window.location.href = "../index.html"; });
-});
+setupLogout();
 
-// --- PAYMENTS LOGIC ---
-const paymentsListBody = document.getElementById("payments-list-body");
-
-let tenantsCache = {};
-
-// Load tenants into cache to resolve names quickly
-async function populateTenantsCache() {
-    // simplified version for the prototype - in production we might fetch on demand
-    const q = query(collection(db, "users"));
-    onSnapshot(q, (snap) => {
-        snap.forEach(doc => {
-            if(doc.data().role === 'tenant') {
-                tenantsCache[doc.id] = doc.data().name;
-            }
-        });
-    });
+// Mobile sidebar
+const toggleBtn = document.querySelector(".sidebar-toggle");
+const sidebar = document.querySelector(".sidebar");
+if (toggleBtn && sidebar) {
+    toggleBtn.addEventListener("click", () => sidebar.classList.toggle("open"));
 }
 
 function loadPayments() {
     const q = query(collection(db, "payments"), orderBy("date", "desc"));
-    
+
     onSnapshot(q, (snapshot) => {
-        paymentsListBody.innerHTML = "";
-        
+        if (snapshot.empty) {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No payments yet</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = "";
         snapshot.forEach((docSnap) => {
             const pay = docSnap.data();
-            const payId = docSnap.id;
-            const tenantName = tenantsCache[pay.tenantId] || "Loading...";
-            const dateStr = pay.date ? pay.date.toDate().toLocaleString() : "Just now";
-            
-            let statusColor = "var(--primary-orange)";
-            let actionsHtml = `
-                <button class="btn btn-success verify-btn" data-id="${payId}" style="padding: 0.3rem 0.5rem; font-size: 0.8rem; margin-right: 5px;"><i class="fa-solid fa-check"></i></button>
-                <button class="btn reject-btn" data-id="${payId}" style="padding: 0.3rem 0.5rem; font-size: 0.8rem; background: var(--primary-red); color: white;"><i class="fa-solid fa-xmark"></i></button>
-            `;
+            const id = docSnap.id;
+            const tenantName = tenantsCache[pay.tenantId] || "Unknown";
+            const dateStr = pay.date?.toDate
+                ? pay.date.toDate().toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" })
+                : "Just now";
 
-            if (pay.status === "approved") {
-                statusColor = "var(--primary-green)";
-                actionsHtml = `<span style="color: gray; font-size: 0.8rem;">Verified</span>`;
-            } else if (pay.status === "rejected") {
-                statusColor = "var(--primary-red)";
-                actionsHtml = `<span style="color: gray; font-size: 0.8rem;">Rejected</span>`;
+            const badgeClass = pay.status === "approved" ? "badge-approved"
+                : pay.status === "rejected" ? "badge-rejected"
+                : "badge-pending";
+
+            let actionsHtml = '';
+            if (pay.status === "pending") {
+                actionsHtml = `
+                    <button class="btn btn-success btn-sm approve-btn" data-id="${id}" style="margin-right: 0.25rem;"><i class="fa-solid fa-check"></i> Approve</button>
+                    <button class="btn btn-danger btn-sm reject-btn" data-id="${id}"><i class="fa-solid fa-xmark"></i> Reject</button>
+                `;
+            } else {
+                actionsHtml = `<span class="badge ${badgeClass}">${pay.status}</span>`;
             }
 
-            const row = `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 1rem;">${dateStr}</td>
-                    <td style="padding: 1rem; font-weight: 500;">${tenantName}</td>
-                    <td style="padding: 1rem;">${pay.refCode}</td>
-                    <td style="padding: 1rem;">KES ${pay.amount}</td>
-                    <td style="padding: 1rem;">
-                        <span style="color: ${statusColor}; font-weight: 500; text-transform: capitalize;">${pay.status}</span>
-                    </td>
-                    <td style="padding: 1rem;">${actionsHtml}</td>
-                </tr>
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${dateStr}</td>
+                <td><strong>${tenantName}</strong></td>
+                <td><code>${pay.refCode || "N/A"}</code></td>
+                <td>KES ${Number(pay.amount).toLocaleString()}</td>
+                <td><span class="badge ${badgeClass}">${pay.status}</span></td>
+                <td>${actionsHtml}</td>
             `;
-            paymentsListBody.innerHTML += row;
+            tbody.appendChild(row);
         });
 
-        // Attach event listeners to buttons
-        document.querySelectorAll(".verify-btn").forEach(btn => {
-            btn.addEventListener("click", (e) => updatePaymentStatus(e.currentTarget.dataset.id, "approved"));
+        // Approve handlers
+        document.querySelectorAll(".approve-btn").forEach(btn => {
+            btn.addEventListener("click", () => updatePayment(btn.dataset.id, "approved"));
         });
+
+        // Reject handlers
         document.querySelectorAll(".reject-btn").forEach(btn => {
-            btn.addEventListener("click", (e) => updatePaymentStatus(e.currentTarget.dataset.id, "rejected"));
+            btn.addEventListener("click", () => updatePayment(btn.dataset.id, "rejected"));
         });
+
+        if (typeof window.filterPageContent === "function") {
+            window.filterPageContent();
+        }
+    }, (error) => {
+        console.error("Error loading payments:", error);
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Error loading payments</td></tr>';
     });
 }
 
-async function updatePaymentStatus(paymentId, newStatus) {
-    if(!confirm(`Are you sure you want to mark this payment as ${newStatus}?`)) return;
-
+async function updatePayment(paymentId, newStatus) {
+    if (!confirm(`Mark this payment as ${newStatus}?`)) return;
     try {
-        await updateDoc(doc(db, "payments", paymentId), {
-            status: newStatus
-        });
+        await updateDoc(doc(db, "payments", paymentId), { status: newStatus });
+        showToast(`Payment ${newStatus}`, "success");
     } catch (error) {
         console.error("Error updating payment:", error);
-        alert("Failed to update status.");
+        showToast("Failed to update payment", "error");
     }
 }
-
-// Init
-populateTenantsCache();
-setTimeout(loadPayments, 500); // Give cache a split second to load

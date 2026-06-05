@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Houses | Nyumbani</title>
+    <title>Maintenance | Nyumbani</title>
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="../favicon.png" type="image/png">
@@ -24,11 +24,11 @@
             <div class="menu-section">
                 <div class="menu-title">MAIN MENU</div>
                 <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-gauge"></i> Dashboard</a>
-                <a href="houses.html" class="menu-item active"><i class="fa-solid fa-building"></i> Houses</a>
+                <a href="houses.html" class="menu-item"><i class="fa-solid fa-building"></i> Houses</a>
                 <a href="tenants.html" class="menu-item"><i class="fa-solid fa-users"></i> Tenants</a>
                 <a href="payments.html" class="menu-item"><i class="fa-solid fa-money-bill-wave"></i> Payments <span class="badge badge-pending" id="badge-payments" style="display: none; margin-left: auto;">0</span></a>
                 <a href="announcements.html" class="menu-item"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
-                <a href="maintenance.html" class="menu-item"><i class="fa-solid fa-wrench"></i> Maintenance <span class="badge badge-pending" id="badge-maintenance" style="display: none; margin-left: auto;">0</span></a>
+                <a href="maintenance.html" class="menu-item active"><i class="fa-solid fa-wrench"></i> Maintenance <span class="badge badge-pending" id="badge-maintenance" style="display: none; margin-left: auto;">0</span></a>
                 <a href="messages.html" class="menu-item"><i class="fa-solid fa-envelope"></i> Messages <span class="badge badge-pending" id="badge-messages" style="display: none; margin-left: auto;">0</span></a>
                 <a href="directory.html" class="menu-item"><i class="fa-solid fa-address-book"></i> Referrals Directory</a>
                 <div class="menu-title" style="margin-top: 1.5rem;">OTHER</div>
@@ -57,18 +57,19 @@
             <div class="content-area">
                 <div class="page-header">
                     <div>
-                        <h1 class="page-title">House Management</h1>
+                        <h1 class="page-title">Maintenance Requests</h1>
                         <div class="breadcrumbs">
-                            <a href="dashboard.html">Home</a> / <span>Houses</span>
+                            <a href="dashboard.html">Home</a> / <span>Maintenance</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex-between" style="margin-bottom: 1.25rem;">
-                    <div class="card-title" style="margin-bottom: 0;">All Houses</div>
-                    <button class="btn btn-primary" id="add-house-btn">
-                        <i class="fa-solid fa-plus"></i> Add House
-                    </button>
+                <!-- Filter Badges -->
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary btn-sm filter-btn active-filter" data-filter="all">All</button>
+                    <button class="btn btn-outline btn-sm filter-btn" data-filter="pending">Pending</button>
+                    <button class="btn btn-outline btn-sm filter-btn" data-filter="in-progress">In Progress</button>
+                    <button class="btn btn-outline btn-sm filter-btn" data-filter="resolved">Resolved</button>
                 </div>
 
                 <div class="white-card">
@@ -76,17 +77,18 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Code</th>
-                                    <th>Rent (KES)</th>
+                                    <th>#</th>
+                                    <th>Submitted By</th>
+                                    <th>Issue</th>
+                                    <th>Description</th>
                                     <th>Status</th>
-                                    <th>Tenants</th>
+                                    <th>Submitted</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="houses-table-body">
+                            <tbody id="maintenance-table-body">
                                 <tr class="empty-row">
-                                    <td colspan="6">Loading houses...</td>
+                                    <td colspan="7">Loading maintenance requests...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -96,38 +98,6 @@
         </div>
     </div>
 
-    <!-- Add House Modal -->
-    <div class="modal-overlay" id="add-house-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="house-modal-title">Add New House</h3>
-                <button class="modal-close" id="close-house-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="add-house-form">
-                    <div class="form-group">
-                        <label for="house-name-input">House Name</label>
-                        <input type="text" class="form-control" id="house-name-input" placeholder="e.g. Unit A1" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="house-rent-input">Monthly Rent (KES)</label>
-                        <input type="number" class="form-control" id="house-rent-input" placeholder="e.g. 15000" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="house-code-input">House Code</label>
-                        <input type="text" class="form-control" id="house-code-input" placeholder="e.g. A1" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" id="cancel-house-modal">Cancel</button>
-                <button class="btn btn-primary" id="submit-house-btn">
-                    <i class="fa-solid fa-plus"></i> Add House
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script type="module" src="houses.js"></script>
+    <script type="module" src="maintenance.js"></script>
 </body>
 </html>

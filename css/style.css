@@ -1,48 +1,65 @@
-/* 1. GLOBAL RESET & VARIABLES */
+/* Nyumbani - Auth Pages Stylesheet (Login + Register)
+   Primary color: #4361ee (matches dashboard.css) */
+
 :root {
-    --primary-color: #2563eb;       /* Professional Blue */
-    --primary-hover: #1d4ed8;
-    --bg-color: #f3f4f6;            /* Light Grey Background */
-    --text-main: #1f2937;           /* Dark Grey Text */
-    --text-muted: #6b7280;
+    --primary-color: #4361ee;           /* Nyumbani Blue */
+    --primary-hover: #3a56d4;
+    --primary-light: rgba(67, 97, 238, 0.10);
+    --bg-color: #f0f2f5;               /* Soft grey background */
+    --text-main: #1f2937;              /* Dark text */
+    --text-muted: #6b7280;             /* Secondary text */
     --white: #ffffff;
-    --danger: #ef4444;              /* Red for errors */
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --danger: #ef4444;                 /* Error red */
+    --danger-bg: #fee2e2;
+    --border-color: #d1d5db;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -2px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                 0 8px 10px -6px rgba(0, 0, 0, 0.05);
 }
 
-* {
-    box-sizing: border-box; /* Crucial: Padding doesn't add to width */
+/* Global Reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
 body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-color);
+    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #e8ecf4 0%, #f0f2f5 50%, #e4e9f2 100%);
     color: var(--text-main);
-    line-height: 1.5;
+    line-height: 1.6;
+    min-height: 100vh;
+
+    /* Subtle dot pattern overlay */
+    background-image:
+        radial-gradient(circle, rgba(67, 97, 238, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
 }
 
-/* 2. LAYOUT UTILITIES */
+/* Auth Layout */
 .auth-container {
     min-height: 100vh;
     display: flex;
-    align-items: center;    /* Vertical Center */
-    justify-content: center; /* Horizontal Center */
+    align-items: center;
+    justify-content: center;
     padding: 1rem;
 }
 
-/* 3. CARD COMPONENT */
+/* Card Component */
 .card {
     background: var(--white);
-    border-radius: 12px;
-    box-shadow: var(--shadow);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
     padding: 2.5rem;
     width: 100%;
-    max-width: 400px; /* Prevents it from getting too wide on desktop */
+    max-width: 420px;
 }
 
-/* 4. TYPOGRAPHY & BRANDING */
+/* Brand Header */
 .brand-header {
     text-align: center;
     margin-bottom: 2rem;
@@ -50,60 +67,113 @@ body {
 
 .brand-header h1 {
     color: var(--primary-color);
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 700;
+    letter-spacing: -0.5px;
 }
 
 .brand-header p {
     color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
 }
 
-/* 5. FORM ELEMENTS */
+/* Form Elements */
 .input-group {
     margin-bottom: 1.25rem;
 }
 
 .input-group label {
     display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    font-weight: 500;
+    margin-bottom: 0.4rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
 }
 
 .input-group input {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 1rem;
+    padding: 0.75rem 0.875rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: var(--white);
+}
+
+.input-group input::placeholder {
+    color: #9ca3af;
 }
 
 .input-group input:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px var(--primary-light);
 }
 
-/* 6. BUTTONS */
+/* Hint text beneath inputs */
+.input-hint {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Primary Button */
 .btn-primary {
     width: 100%;
     background-color: var(--primary-color);
     color: var(--white);
     border: none;
     padding: 0.875rem;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 1rem;
     font-weight: 600;
+    font-family: inherit;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.1s;
+    position: relative;          /* For loading spinner positioning */
 }
 
 .btn-primary:hover {
     background-color: var(--primary-hover);
 }
 
-/* 7. ERROR STATE */
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+    cursor: not-allowed;
+    opacity: 0.85;
+}
+
+/* Button Loading State */
+@keyframes btn-spin {
+    to { transform: rotate(360deg); }
+}
+
+.btn-loading {
+    /* Dim the text color slightly and add the spinner */
+    color: rgba(255, 255, 255, 0.85);
+    pointer-events: none;
+}
+
+.btn-loading::after {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-left: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    vertical-align: middle;
+    animation: btn-spin 0.6s linear infinite;
+}
+
+/* Error State */
 .error-hidden {
     display: none;
 }
@@ -111,21 +181,46 @@ body {
 .error-visible {
     display: block;
     color: var(--danger);
-    background-color: #fee2e2;
-    padding: 0.75rem;
-    border-radius: 6px;
+    background-color: var(--danger-bg);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
     margin-bottom: 1rem;
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid rgba(239, 68, 68, 0.15);
 }
 
+/* Auth Footer */
 .auth-footer {
     text-align: center;
     margin-top: 1.5rem;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.auth-footer p + p {
+    margin-top: 0.4rem;
 }
 
 .auth-footer a {
     color: var(--primary-color);
     text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Tweaks */
+@media (max-width: 480px) {
+    .card {
+        padding: 1.75rem 1.5rem;
+        border-radius: 12px;
+    }
+
+    .brand-header h1 {
+        font-size: 1.75rem;
+    }
 }

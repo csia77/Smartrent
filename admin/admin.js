@@ -1,72 +1,118 @@
+// admin/admin.js
 import { auth, db } from "../js/firebase-config.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { collection, query, where, getDocs, onSnapshot, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { guardPage, setupLogout, showToast } from "../js/auth-guard.js";
+import {
+    collection,
+    getDocs,
+    query,
+    where,
+    orderBy,
+    limit,
+    onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-onAuthStateChanged(auth, (user) => {
-    if (!user) { window.location.href = "../index.html"; }
+// Auth guard
+guardPage("admin", (user, userData) => {
+    // Update sidebar name
+    const sidebarName = document.getElementById("sidebar-username");
+    if (sidebarName) sidebarName.textContent = userData.name || "Admin";
+
+    loadStats();
+    loadRecentActivity();
 });
 
-document.getElementById("logout-btn").addEventListener("click", () => {
-    signOut(auth).then(() => { window.location.href = "../index.html"; });
-});
+setupLogout();
 
-// --- DASHBOARD STATS LOGIC ---
-const statHouses = document.getElementById("stat-houses");
-const statTenants = document.getElementById("stat-tenants");
-const statInvoices = document.getElementById("stat-invoices");
-const recentActivityBody = document.getElementById("recent-activity-body");
-
-async function loadDashboardStats() {
-    try {
-        // Get Houses Count
-        const housesSnap = await getDocs(collection(db, "houses"));
-        if(statHouses) statHouses.innerText = housesSnap.size;
-
-        // Get Tenants Count
-        const tenantsQuery = query(collection(db, "users"), where("role", "==", "tenant"));
-        const tenantsSnap = await getDocs(tenantsQuery);
-        if(statTenants) statTenants.innerText = tenantsSnap.size;
-
-        // Get Invoices Count
-        const invoicesSnap = await getDocs(collection(db, "invoices"));
-        if(statInvoices) statInvoices.innerText = invoicesSnap.size;
-        
-    } catch (error) {
-        console.error("Error loading dashboard stats:", error);
-    }
-}
-
-function loadRecentActivity() {
-    if(!recentActivityBody) return;
-    
-    // We will show recent payments as "Transactions"
-    const q = query(collection(db, "payments"), orderBy("date", "desc"), limit(5));
-    
-    onSnapshot(q, (snapshot) => {
-        recentActivityBody.innerHTML = "";
-        
-        if(snapshot.empty) {
-            recentActivityBody.innerHTML = "<tr><td colspan='2' style='padding: 1rem;'>No recent activity</td></tr>";
-            return;
-        }
-
-        snapshot.forEach((docSnap) => {
-            const pay = docSnap.data();
-            const dateStr = pay.date ? pay.date.toDate().toLocaleString() : "Just now";
-            
-            const actionText = `Tenant submitted payment (Ref: ${pay.refCode}) for KES ${pay.amount}`;
-            
-            const row = `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 1rem;">${actionText}</td>
-                    <td style="padding: 1rem; color: var(--text-muted);">${dateStr}</td>
-                </tr>
-            `;
-            recentActivityBody.innerHTML += row;
-        });
+// Mobile sidebar toggle
+const toggleBtn = document.querySelector(".sidebar-toggle");
+const sidebar = document.querySelector(".sidebar");
+if (toggleBtn && sidebar) {
+    toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
     });
 }
 
-// Init Dashboard
-loadDashboardStats();
-loadRecentActivity();
+// Load dashboard stats
+const loadStats = async () => {
+    try {
+        // Total houses
+        const housesSnap = await getDocs(collection(db, "houses"));
+        document.getElementById("stat-houses").textContent = housesSnap.size;
+
+        // Total tenants
+        const tenantsQuery = query(collection(db, "users"), where("role", "==", "tenant"));
+        const tenantsSnap = await getDocs(tenantsQuery);
+        document.getElementById("stat-tenants").textContent = tenantsSnap.size;
+
+        // Pending maintenance requests
+        const maintenanceQuery = query(
+            collection(db, "maintenanceRequests"),
+            where("status", "==", "pending")
+        );
+        const maintenanceSnap = await getDocs(maintenanceQuery);
+        document.getElementById("stat-maintenance").textContent = maintenanceSnap.size;
+
+        // Pending payments
+        const paymentsQuery = query(
+            collection(db, "payments"),
+            where("status", "==", "pending")
+        );
+        const paymentsSnap = await getDocs(paymentsQuery);
+        document.getElementById("stat-payments").textContent = paymentsSnap.size;
+
+    } catch (error) {
+        console.error("Error loading stats:", error);
+        showToast("Failed to load dashboard stats", "error");
+    }
+};
+
+// Load recent activity
+const loadRecentActivity = () => {
+    const tbody = document.getElementById("recent-activity-body");
+
+    const recentPaymentsQuery = query(
+        collection(db, "payments"),
+        orderBy("date", "desc"),
+        limit(10)
+    );
+
+    onSnapshot(recentPaymentsQuery, (snapshot) => {
+        if (snapshot.empty) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="3">No recent activity</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = "";
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const row = document.createElement("tr");
+
+            const statusBadge = data.status === "approved"
+                ? `<span class="badge badge-approved">Approved</span>`
+                : data.status === "rejected"
+                    ? `<span class="badge badge-rejected">Rejected</span>`
+                    : `<span class="badge badge-pending">Pending</span>`;
+
+            const dateStr = data.date?.toDate
+                ? data.date.toDate().toLocaleDateString("en-KE", {
+                    year: "numeric", month: "short", day: "numeric",
+                    hour: "2-digit", minute: "2-digit"
+                })
+                : "N/A";
+
+            row.innerHTML = `
+                <td>Payment ${statusBadge}</td>
+                <td>KES ${Number(data.amount).toLocaleString()} - Ref: ${data.refCode || "N/A"}</td>
+                <td>${dateStr}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        if (typeof window.filterPageContent === "function") {
+            window.filterPageContent();
+        }
+    }, (error) => {
+        console.error("Error loading recent activity:", error);
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="3">Error loading activity</td></tr>`;
+    });
+};

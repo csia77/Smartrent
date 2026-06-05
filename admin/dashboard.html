@@ -3,114 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Nyumbani</title>
+    <title>Dashboard | Nyumbani</title>
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="../favicon.png" type="image/png">
 </head>
 <body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fa-solid fa-u"></i></div>
+                <span id="logo-text">NYUMBANI</span>
+            </div>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=4361ee&color=fff" alt="User" id="sidebar-avatar">
+                <div class="name" id="sidebar-username">Admin</div>
+                <i class="fa-solid fa-chevron-right text-muted"></i>
+            </div>
+            <div class="menu-section">
+                <div class="menu-title">MAIN MENU</div>
+                <a href="dashboard.html" class="menu-item active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                <a href="houses.html" class="menu-item"><i class="fa-solid fa-building"></i> Houses</a>
+                <a href="tenants.html" class="menu-item"><i class="fa-solid fa-users"></i> Tenants</a>
+                <a href="payments.html" class="menu-item"><i class="fa-solid fa-money-bill-wave"></i> Payments <span class="badge badge-pending" id="badge-payments" style="display: none; margin-left: auto;">0</span></a>
+                <a href="announcements.html" class="menu-item"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+                <a href="maintenance.html" class="menu-item"><i class="fa-solid fa-wrench"></i> Maintenance <span class="badge badge-pending" id="badge-maintenance" style="display: none; margin-left: auto;">0</span></a>
+                <a href="messages.html" class="menu-item"><i class="fa-solid fa-envelope"></i> Messages <span class="badge badge-pending" id="badge-messages" style="display: none; margin-left: auto;">0</span></a>
+                <a href="directory.html" class="menu-item"><i class="fa-solid fa-address-book"></i> Referrals Directory</a>
+                <div class="menu-title" style="margin-top: 1.5rem;">OTHER</div>
+                <a href="settings.html" class="menu-item"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="#" id="logout-btn" class="menu-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</a>
+            </div>
+        </aside>
 
-<div class="app-container">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-icon"><i class="fa-solid fa-u"></i></div>
-            NYUMBANI
+        <!-- Main Content -->
+        <div class="main-wrapper">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle"><i class="fa-solid fa-bars"></i></button>
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <i class="fa-solid fa-gear" style="font-size: 1.2rem; cursor: pointer;"></i>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard Overview</h1>
+                    <div class="breadcrumbs">
+                        <a href="dashboard.html">Home</a> / <span>Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Stat Widgets -->
+                <div class="card-grid-3">
+                    <div class="widget-card widget-green">
+                        <div class="top-row">
+                            <div class="title">Total Houses</div>
+                            <i class="fa-solid fa-building"></i>
+                        </div>
+                        <div class="value" id="stat-houses">0</div>
+                        <div class="actions">
+                            <a href="houses.html">View all <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="widget-card widget-purple">
+                        <div class="top-row">
+                            <div class="title">Total Tenants</div>
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="value" id="stat-tenants">0</div>
+                        <div class="actions">
+                            <a href="tenants.html">View all <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="widget-card widget-orange">
+                        <div class="top-row">
+                            <div class="title">Pending Maintenance</div>
+                            <i class="fa-solid fa-wrench"></i>
+                        </div>
+                        <div class="value" id="stat-maintenance">0</div>
+                        <div class="actions">
+                            <a href="maintenance.html">View all <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="widget-card widget-red">
+                        <div class="top-row">
+                            <div class="title">Pending Payments</div>
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div class="value" id="stat-payments">0</div>
+                        <div class="actions">
+                            <a href="#">View all <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="white-card">
+                    <div class="card-title">Recent Activity</div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Details</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-activity-body">
+                                <tr class="empty-row">
+                                    <td colspan="3">Loading activity...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="user-profile">
-            <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="User">
-            <div class="name" id="sidebar-username">admin</div>
-            <i class="fa-solid fa-chevron-right text-muted"></i>
-        </div>
-        <div class="menu-section">
-            <div class="menu-title">--- MAIN MENU</div>
-            <a href="dashboard.html" class="menu-item active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
-            <a href="houses.html" class="menu-item"><i class="fa-solid fa-building"></i> Houses</a>
-            <a href="tenants.html" class="menu-item"><i class="fa-solid fa-users"></i> Tenants</a>
-            <a href="invoices.html" class="menu-item"><i class="fa-solid fa-credit-card"></i> Invoices</a>
-            <a href="payments.html" class="menu-item"><i class="fa-solid fa-money-bill-wave"></i> Payments</a>
-            <a href="messages.html" class="menu-item"><i class="fa-solid fa-envelope"></i> Messages</a>
-            
-            <div class="menu-title" style="margin-top: 1.5rem;">--- OTHER</div>
-            <a href="#" class="menu-item"><i class="fa-solid fa-gear"></i> Accounts</a>
-            <a href="#" id="logout-btn" class="menu-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</a>
-        </div>
-    </aside>
-
-    <div class="main-wrapper">
-        <header class="topbar">
-            <div class="topbar-left">
-                <i class="fa-solid fa-circle-arrow-left" style="font-size: 1.2rem; cursor: pointer;"></i>
-                <div class="search-bar">
-                    <input type="text" placeholder="Search...">
-                    <i class="fa-solid fa-magnifying-glass" style="color: #333;"></i>
-                </div>
-            </div>
-            <div class="topbar-right">
-                <i class="fa-solid fa-gear" style="font-size: 1.2rem; cursor: pointer;"></i>
-            </div>
-        </header>
-
-        <main class="content-area">
-            <div class="page-header">
-                <div class="page-title">Hey admin!</div>
-                <div class="breadcrumbs">
-                    <a href="dashboard.html">Dashboard</a> / <span>Home</span>
-                </div>
-            </div>
-
-            <div class="card-grid-3">
-                <div class="widget-card widget-green">
-                    <div class="top-row">
-                        <i class="fa-solid fa-building"></i>
-                        <span class="value" id="stat-houses">0</span>
-                    </div>
-                    <div class="title">Houses</div>
-                    <div class="actions">
-                        <a href="houses.html"><i class="fa-solid fa-eye"></i> View details</a>
-                    </div>
-                </div>
-                <div class="widget-card widget-purple">
-                    <div class="top-row">
-                        <i class="fa-solid fa-users"></i>
-                        <span class="value" id="stat-tenants">0</span>
-                    </div>
-                    <div class="title">Tenants</div>
-                    <div class="actions">
-                        <a href="tenants.html"><i class="fa-solid fa-eye"></i> View details</a>
-                    </div>
-                </div>
-                <div class="widget-card widget-teal">
-                    <div class="top-row">
-                        <i class="fa-solid fa-credit-card"></i>
-                        <span class="value" id="stat-invoices">0</span>
-                    </div>
-                    <div class="title">Invoices</div>
-                    <div class="actions">
-                        <a href="invoices.html"><i class="fa-solid fa-eye"></i> View details</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dashboard specific summary (recent transactions) could go here -->
-            <div class="white-card">
-                <div class="card-title">LATEST TRANSACTIONS</div>
-                <table class="data-table">
-                    <thead>
-                        <tr style="background: #f4f6f9;">
-                            <th>Action Description</th>
-                            <th>Time</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recent-activity-body">
-                        <!-- Populated by JS later -->
-                        <tr><td colspan="2">No recent activity</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-        </main>
     </div>
-</div>
 
-<script type="module" src="admin.js"></script>
+    <script type="module" src="admin.js"></script>
 </body>
 </html>

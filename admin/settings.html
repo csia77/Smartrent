@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | Nyumbani</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="../favicon.png" type="image/png">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fa-solid fa-u"></i></div>
+                <span id="logo-text">NYUMBANI</span>
+            </div>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=4361ee&color=fff" alt="User" id="sidebar-avatar">
+                <div class="name" id="sidebar-username">Admin</div>
+                <i class="fa-solid fa-chevron-right text-muted"></i>
+            </div>
+            <div class="menu-section">
+                <div class="menu-title">MAIN MENU</div>
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                <a href="houses.html" class="menu-item"><i class="fa-solid fa-building"></i> Houses</a>
+                <a href="tenants.html" class="menu-item"><i class="fa-solid fa-users"></i> Tenants</a>
+                <a href="payments.html" class="menu-item"><i class="fa-solid fa-money-bill-wave"></i> Payments <span class="badge badge-pending" id="badge-payments" style="display: none; margin-left: auto;">0</span></a>
+                <a href="announcements.html" class="menu-item"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+                <a href="maintenance.html" class="menu-item"><i class="fa-solid fa-wrench"></i> Maintenance <span class="badge badge-pending" id="badge-maintenance" style="display: none; margin-left: auto;">0</span></a>
+                <a href="messages.html" class="menu-item"><i class="fa-solid fa-envelope"></i> Messages <span class="badge badge-pending" id="badge-messages" style="display: none; margin-left: auto;">0</span></a>
+                <a href="directory.html" class="menu-item"><i class="fa-solid fa-address-book"></i> Referrals Directory</a>
+                <div class="menu-title" style="margin-top: 1.5rem;">OTHER</div>
+                <a href="settings.html" class="menu-item active"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="#" id="logout-btn" class="menu-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-wrapper">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle"><i class="fa-solid fa-bars"></i></button>
+                    <div class="search-bar" style="visibility: hidden;">
+                        <input type="text" placeholder="Search...">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <i class="fa-solid fa-gear" style="font-size: 1.2rem; cursor: pointer;"></i>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Settings</h1>
+                        <div class="breadcrumbs">
+                            <a href="dashboard.html">Home</a> / <span>Settings</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <!-- Column 1: Profile & Password -->
+                    <div>
+                        <div class="white-card">
+                            <h4 class="card-title">Profile Settings</h4>
+                            <form id="profile-form">
+                                <div class="form-group" style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center; margin-bottom: 1.5rem; text-align: center;">
+                                    <img id="profile-preview" src="https://ui-avatars.com/api/?name=Admin&background=4361ee&color=fff" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color);">
+                                    <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 100%;">
+                                        <label style="font-size: 0.85rem; font-weight: 500; text-align: left;">Profile Image</label>
+                                        <div style="display: flex; gap: 0.5rem; margin-top: 4px;">
+                                            <button type="button" class="btn btn-outline btn-sm" id="btn-upload-pc" style="flex: 1; padding: 0.4rem 0.5rem; font-size: 0.8rem;"><i class="fa-solid fa-upload"></i> Upload PC</button>
+                                            <button type="button" class="btn btn-outline btn-sm" id="btn-upload-url" style="flex: 1; padding: 0.4rem 0.5rem; font-size: 0.8rem;"><i class="fa-solid fa-link"></i> Web Link</button>
+                                        </div>
+                                        <input type="file" id="profile-file-input" accept="image/*" style="display: none;">
+                                        <input type="text" class="form-control form-control-sm" id="profile-url-input" placeholder="Paste Google Photos or image link" style="display: none; margin-top: 0.5rem; font-size: 0.8rem;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admin-name">Full Name</label>
+                                    <input type="text" class="form-control" id="admin-name" required placeholder="e.g. Landlord Admin">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admin-phone">Phone Number</label>
+                                    <input type="tel" class="form-control" id="admin-phone" placeholder="e.g. 0712345678">
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="save-profile-btn" style="width: 100%;">
+                                    <i class="fa-solid fa-floppy-disk"></i> Save Profile
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="white-card" style="margin-top: 1.5rem;">
+                            <h4 class="card-title">Account Security</h4>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Triggers a password reset link to your email so you can safely choose a new password.</p>
+                            <button class="btn btn-outline" id="reset-password-btn" style="width: 100%;">
+                                <i class="fa-solid fa-key"></i> Reset Password
+                            </button>
+                        </div>
+
+                        <div class="white-card" style="margin-top: 1.5rem;">
+                            <h4 class="card-title">Property Photo Catalogue</h4>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">Manage plot photos displayed to tenants in the sidebar logo catalogue.</p>
+                            
+                            <form id="gallery-form" style="margin-bottom: 1.5rem;">
+                                <div class="form-group" style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center; text-align: center; border: 2px dashed var(--border-color); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; position: relative;">
+                                    <img id="gallery-preview" src="" style="max-width: 100%; max-height: 120px; border-radius: 4px; display: none; object-fit: cover;">
+                                    <div id="gallery-placeholder" style="color: var(--text-muted); font-size: 0.85rem;">
+                                        <i class="fa-solid fa-image" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                                        Select or paste catalogue photo
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem; width: 100%; justify-content: center; margin-top: 4px;">
+                                        <button type="button" class="btn btn-outline btn-sm" id="btn-gallery-pc" style="flex: 1; padding: 0.4rem 0.5rem; font-size: 0.8rem;"><i class="fa-solid fa-upload"></i> Upload PC</button>
+                                        <button type="button" class="btn btn-outline btn-sm" id="btn-gallery-url" style="flex: 1; padding: 0.4rem 0.5rem; font-size: 0.8rem;"><i class="fa-solid fa-link"></i> Web Link</button>
+                                    </div>
+                                    <input type="file" id="gallery-file-input" accept="image/*" style="display: none;">
+                                    <input type="text" class="form-control form-control-sm" id="gallery-url-input" placeholder="Paste image link here" style="display: none; width: 100%; font-size: 0.8rem; margin-top: 0.5rem;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="gallery-photo-title">Photo Title / Caption</label>
+                                    <input type="text" class="form-control" id="gallery-photo-title" placeholder="e.g. Front Gate View" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="save-gallery-btn" style="width: 100%;">
+                                    <i class="fa-solid fa-plus"></i> Add to Catalogue
+                                </button>
+                            </form>
+                            
+                            <!-- Gallery List -->
+                            <div id="admin-gallery-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                                <!-- Dynamic items loaded via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: System Settings & Payments -->
+                    <div>
+                        <div class="white-card">
+                            <h4 class="card-title">Property & System Settings</h4>
+                            <form id="system-settings-form">
+                                <div class="form-group">
+                                    <label for="prop-name">Property Name</label>
+                                    <input type="text" class="form-control" id="prop-name" placeholder="e.g. Nyumbani Apartments" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prop-currency">Currency Symbol</label>
+                                    <input type="text" class="form-control" id="prop-currency" placeholder="e.g. KES" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prop-due-date">Rent Due Day of Month</label>
+                                    <input type="number" class="form-control" id="prop-due-date" placeholder="e.g. 5" min="1" max="28" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prop-late-fee">Late Payment Fee (%)</label>
+                                    <input type="number" class="form-control" id="prop-late-fee" placeholder="e.g. 5" min="0" max="100" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prop-garbage-fee">Garbage Collection Fee (Monthly KES)</label>
+                                    <input type="number" class="form-control" id="prop-garbage-fee" placeholder="e.g. 500" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prop-security-fee">Security/Service Fee (Monthly KES)</label>
+                                    <input type="number" class="form-control" id="prop-security-fee" placeholder="e.g. 1000" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prop-water-rate">Water Rate per Unit (KES/m³)</label>
+                                    <input type="number" class="form-control" id="prop-water-rate" placeholder="e.g. 150" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prop-grace-period">Rent Grace Period (Days)</label>
+                                    <input type="number" class="form-control" id="prop-grace-period" placeholder="e.g. 3" min="0" max="30" required>
+                                </div>
+                                <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; margin-bottom: 1rem;">
+                                    <input type="checkbox" id="prop-allow-partial" style="width: auto; cursor: pointer;">
+                                    <label for="prop-allow-partial" style="margin-bottom: 0; cursor: pointer; font-weight: normal;">Allow Partial Rent Payments</label>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 1.5rem;">
+                                    <label for="prop-theme-color">Accent Theme Color</label>
+                                    <select id="prop-theme-color" class="form-control">
+                                        <option value="blue">Classic Blue</option>
+                                        <option value="teal">Forest Teal</option>
+                                        <option value="terracotta">Warm Terracotta</option>
+                                        <option value="indigo">Royal Indigo</option>
+                                        <option value="green">Emerald Green</option>
+                                    </select>
+                                </div>
+                                
+                                <h4 class="card-title" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">M-Pesa Billing Configuration</h4>
+                                <div class="form-group">
+                                    <label for="mpesa-paybill">Paybill / Till Number</label>
+                                    <input type="text" class="form-control" id="mpesa-paybill" placeholder="e.g. 247247" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mpesa-account">Account Name</label>
+                                    <input type="text" class="form-control" id="mpesa-account" placeholder="e.g. NYUMBANI APARTMENTS" required>
+                                </div>
+                                <button type="submit" class="btn btn-success" id="save-system-btn" style="width: 100%; margin-top: 1rem;">
+                                    <i class="fa-solid fa-circle-check"></i> Save System & Billing Settings
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="settings.js"></script>
+</body>
+</html>

@@ -6,80 +6,160 @@
     <title>Tenants | Nyumbani</title>
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="../favicon.png" type="image/png">
 </head>
 <body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fa-solid fa-u"></i></div>
+                <span id="logo-text">NYUMBANI</span>
+            </div>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=4361ee&color=fff" alt="User" id="sidebar-avatar">
+                <div class="name" id="sidebar-username">Admin</div>
+                <i class="fa-solid fa-chevron-right text-muted"></i>
+            </div>
+            <div class="menu-section">
+                <div class="menu-title">MAIN MENU</div>
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                <a href="houses.html" class="menu-item"><i class="fa-solid fa-building"></i> Houses</a>
+                <a href="tenants.html" class="menu-item active"><i class="fa-solid fa-users"></i> Tenants</a>
+                <a href="payments.html" class="menu-item"><i class="fa-solid fa-money-bill-wave"></i> Payments <span class="badge badge-pending" id="badge-payments" style="display: none; margin-left: auto;">0</span></a>
+                <a href="announcements.html" class="menu-item"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+                <a href="maintenance.html" class="menu-item"><i class="fa-solid fa-wrench"></i> Maintenance <span class="badge badge-pending" id="badge-maintenance" style="display: none; margin-left: auto;">0</span></a>
+                <a href="messages.html" class="menu-item"><i class="fa-solid fa-envelope"></i> Messages <span class="badge badge-pending" id="badge-messages" style="display: none; margin-left: auto;">0</span></a>
+                <a href="directory.html" class="menu-item"><i class="fa-solid fa-address-book"></i> Referrals Directory</a>
+                <div class="menu-title" style="margin-top: 1.5rem;">OTHER</div>
+                <a href="settings.html" class="menu-item"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="#" id="logout-btn" class="menu-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</a>
+            </div>
+        </aside>
 
-<div class="app-container">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-icon"><i class="fa-solid fa-u"></i></div>
-            NYUMBANI
-        </div>
-        <div class="user-profile">
-            <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="User">
-            <div class="name" id="sidebar-username">admin</div>
-            <i class="fa-solid fa-chevron-right text-muted"></i>
-        </div>
-        <div class="menu-section">
-            <div class="menu-title">--- MAIN MENU</div>
-            <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-gauge"></i> Dashboard</a>
-            <a href="houses.html" class="menu-item"><i class="fa-solid fa-building"></i> Houses</a>
-            <a href="tenants.html" class="menu-item active"><i class="fa-solid fa-users"></i> Tenants</a>
-            <a href="invoices.html" class="menu-item"><i class="fa-solid fa-credit-card"></i> Invoices</a>
-            <a href="payments.html" class="menu-item"><i class="fa-solid fa-money-bill-wave"></i> Payments</a>
-            <a href="messages.html" class="menu-item"><i class="fa-solid fa-envelope"></i> Messages</a>
-            
-            <div class="menu-title" style="margin-top: 1.5rem;">--- OTHER</div>
-            <a href="#" class="menu-item"><i class="fa-solid fa-gear"></i> Accounts</a>
-            <a href="#" id="logout-btn" class="menu-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</a>
-        </div>
-    </aside>
+        <!-- Main Content -->
+        <div class="main-wrapper">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle"><i class="fa-solid fa-bars"></i></button>
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <i class="fa-solid fa-gear" style="font-size: 1.2rem; cursor: pointer;"></i>
+                </div>
+            </header>
 
-    <div class="main-wrapper">
-        <header class="topbar">
-            <div class="topbar-left">
-                <i class="fa-solid fa-circle-arrow-left" style="font-size: 1.2rem; cursor: pointer;"></i>
-                <div class="search-bar">
-                    <input type="text" placeholder="Search...">
-                    <i class="fa-solid fa-magnifying-glass" style="color: #333;"></i>
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Tenant Management</h1>
+                        <div class="breadcrumbs">
+                            <a href="dashboard.html">Home</a> / <span>Tenants</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-between" style="margin-bottom: 1.25rem;">
+                    <div class="card-title" style="margin-bottom: 0;">All Tenants</div>
+                    <button class="btn btn-primary" id="add-tenant-btn">
+                        <i class="fa-solid fa-plus"></i> Add Tenant
+                    </button>
+                </div>
+
+                <div class="white-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>House</th>
+                                    <th>Rent (KES)</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tenants-table-body">
+                                <tr class="empty-row">
+                                    <td colspan="6">Loading tenants...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="topbar-right">
-                <i class="fa-solid fa-gear" style="font-size: 1.2rem; cursor: pointer;"></i>
-            </div>
-        </header>
-
-        <main class="content-area">
-            <div class="page-header">
-                <div class="page-title">Manage Tenants</div>
-                <div class="breadcrumbs">
-                    <a href="dashboard.html">Dashboard</a> / <span>Tenants</span>
-                </div>
-            </div>
-
-            <div class="white-card">
-                <div class="card-title">CURRENT TENANTS LISTING</div>
-                
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr style="background: #f4f6f9;">
-                                <th>Name <i class="fa-solid fa-sort"></i></th>
-                                <th>Email <i class="fa-solid fa-sort"></i></th>
-                                <th>House <i class="fa-solid fa-sort"></i></th>
-                                <th>Status <i class="fa-solid fa-sort"></i></th>
-                            </tr>
-                        </thead>
-                        <tbody id="tenant-list-body">
-                            <!-- Injected by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+        </div>
     </div>
-</div>
 
-<script type="module" src="tenants.js"></script>
+    <!-- Add Tenant Modal -->
+    <div class="modal-overlay" id="add-tenant-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Tenant</h3>
+                <button class="modal-close" id="close-tenant-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-tenant-form">
+                    <div class="form-group">
+                        <label for="tenant-name-input">Full Name</label>
+                        <input type="text" class="form-control" id="tenant-name-input" placeholder="e.g. John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tenant-email-input">Email Address</label>
+                        <input type="email" class="form-control" id="tenant-email-input" placeholder="e.g. john@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tenant-password-input">Password</label>
+                        <input type="password" class="form-control" id="tenant-password-input" placeholder="Min. 6 characters" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tenant-house-select">Assign House</label>
+                        <select class="form-control" id="tenant-house-select" required>
+                            <option value="">-- Select a house --</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-tenant-modal">Cancel</button>
+                <button class="btn btn-primary" id="submit-tenant-btn">
+                    <i class="fa-solid fa-plus"></i> Add Tenant
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Rent Modal -->
+    <div class="modal-overlay" id="edit-rent-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Rent Amount</h3>
+                <button class="modal-close" id="close-rent-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Current Rent</label>
+                    <p id="current-rent-display" style="font-size: 1.1rem; font-weight: 600; color: var(--text-dark);">KES 0</p>
+                </div>
+                <div class="form-group">
+                    <label for="edit-rent-input">New Rent Amount (KES)</label>
+                    <input type="number" class="form-control" id="edit-rent-input" placeholder="Enter new rent" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-rent-modal">Cancel</button>
+                <button class="btn btn-success" id="save-rent-btn">
+                    <i class="fa-solid fa-check"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="tenants.js"></script>
 </body>
 </html>

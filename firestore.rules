@@ -2,63 +2,145 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- HELPER FUNCTIONS ---    
-    // These make our rules easy to read
+    // ═══════════════════════════════════════════════════════
+    // HELPER FUNCTIONS
+    // These make our rules easier to read and maintain.
+    // ═══════════════════════════════════════════════════════
+    
+    // Is the request coming from a logged-in user?
     function isSignedIn() {
       return request.auth != null;
     }
+    
+    // Is the logged-in user an admin? 
+    // We check their role in the users collection.
     function isAdmin() {
-      // Checks if the logged-in user's role is 'admin' in the users collection
       return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
+    
+    // Does the logged-in user's UID match the document's userId?
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- 1. USERS COLLECTION ---
+    // ═══════════════════════════════════════════════════════
+    // 1. USERS COLLECTION
+    // Stores user profiles (both admins and tenants).
+    // ═══════════════════════════════════════════════════════
     match /users/{userId} {
       // You can read your own profile. Admins can read everyone's.
       allow read: if isOwner(userId) || isAdmin();
-      // You can create your profile when you register
-      allow create: if isOwner(userId);
-      // You can update your own profile, Admins can update any
+      // You can create your own profile when you register.
+      allow create: if isOwner(userId) || isAdmin();
+      // You can update your own profile. Admins can update any profile.
       allow update: if isOwner(userId) || isAdmin();
+      // Only admins can delete user profiles (safety feature).
       allow delete: if isAdmin();
     }
 
-    // --- 2. HOUSES COLLECTION ---
+    // ═══════════════════════════════════════════════════════
+    // 2. HOUSES COLLECTION
+    // Stores rental property information.
+    // ═══════════════════════════════════════════════════════
     match /houses/{houseId} {
-      // Anyone logged in can read houses (Tenants need this to verify the House Code)
+      // Anyone logged in can read houses (tenants need this to verify House Code on registration).
       allow read: if isSignedIn();
-      // Only Admins can create or delete houses
+      // Only admins can create or delete houses.
       allow create, delete: if isAdmin();
-      // Tenants need to update the house when they join (adding their ID to tenantIds array)
-      allow update: if isSignedIn(); 
+      // Both admins and signed-in users can update (tenants update when they join via house code).
+      allow update: if isSignedIn();
     }
 
-    // --- 3. PAYMENTS COLLECTION ---
+    // ═══════════════════════════════════════════════════════
+    // 3. PAYMENTS COLLECTION
+    // Tracks rent payments submitted by tenants.
+    // ═══════════════════════════════════════════════════════
     match /payments/{paymentId} {
       // Tenants see only their own payments. Admins see all.
       allow read: if isAdmin() || (isSignedIn() && resource.data.tenantId == request.auth.uid);
-      // Tenants can only submit payments linked to their own user ID
+      // Tenants can only submit payments linked to their own user ID.
       allow create: if isSignedIn() && request.resource.data.tenantId == request.auth.uid;
-      // Only Admins can update (to approve/reject) or delete payments
+      // Only admins can update (approve/reject) or delete payments.
       allow update, delete: if isAdmin();
     }
 
-    // --- 4. INVOICES COLLECTION ---
+    // ═══════════════════════════════════════════════════════
+    // 4. ANNOUNCEMENTS COLLECTION
+    // Admin and tenants can post announcements. Creator or admin can edit/delete.
+    // ═══════════════════════════════════════════════════════
+    match /announcements/{announcementId} {
+      // Any logged-in user can read announcements.
+      allow read: if isSignedIn();
+      // Any logged-in user can create announcements.
+      allow create: if isSignedIn();
+      // Only admins or the creator can edit or delete.
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.createdBy == request.auth.uid);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // 5. MAINTENANCE REQUESTS COLLECTION
+    // Tenants submit requests; admin manages them.
+    // The tenantUid field is stored but the admin UI does NOT display it.
+    // ═══════════════════════════════════════════════════════
+    match /maintenanceRequests/{requestId} {
+      // Tenants can read their own requests. Admins can read all.
+      allow read: if isAdmin() || (isSignedIn() && resource.data.tenantUid == request.auth.uid);
+      // Any signed-in user can create a request (must be their own tenantUid).
+      allow create: if isSignedIn() && request.resource.data.tenantUid == request.auth.uid;
+      // Only admins can update status (e.g., pending → in-progress → resolved).
+      allow update: if isAdmin();
+      // Only admins can delete requests.
+      allow delete: if isAdmin();
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // 6. ANONYMOUS MESSAGES COLLECTION
+    // Tenants send anonymous messages to admin.
+    // The tenantUid field is stored but the admin UI does NOT display it.
+    // ═══════════════════════════════════════════════════════
+    match /anonymousMessages/{messageId} {
+      // Only admins can read anonymous messages.
+      // Tenants intentionally CANNOT read back their own messages (for privacy).
+      allow read: if isAdmin();
+      // Any signed-in user can create a message (must be their own tenantUid).
+      allow create: if isSignedIn() && request.resource.data.tenantUid == request.auth.uid;
+      // No one can update or delete anonymous messages.
+      allow update, delete: if false;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // 7. INVOICES COLLECTION (future feature)
+    // ═══════════════════════════════════════════════════════
     match /invoices/{invoiceId} {
-      // Tenants see only their own invoices. Admins see all.
       allow read: if isAdmin() || (isSignedIn() && resource.data.tenantId == request.auth.uid);
-      // Only Admins can manage invoices
       allow create, update, delete: if isAdmin();
     }
 
-    // --- 5. MESSAGES COLLECTION ---
-    match /messages/{messageId} {
-      // Users can read/write their own messages. Admin can read/write all.
-      allow read, write: if isAdmin() || (isSignedIn() && resource.data.senderId == request.auth.uid) || (isSignedIn() && resource.data.receiverId == request.auth.uid);
-      allow create: if isSignedIn();
+    // ═══════════════════════════════════════════════════════
+    // 8. SETTINGS COLLECTION
+    // System-wide property and billing settings.
+    // ═══════════════════════════════════════════════════════
+    match /settings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
+
+    // ═══════════════════════════════════════════════════════
+    // 9. SERVICE DIRECTORY COLLECTION
+    // Directory of vetted tradespeople and specialists.
+    // ═══════════════════════════════════════════════════════
+    match /serviceDirectory/{providerId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // 10. PROPERTY GALLERY COLLECTION
+    // ═══════════════════════════════════════════════════════
+    match /propertyGallery/{photoId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
   }
 }

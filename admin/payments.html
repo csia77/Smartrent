@@ -6,42 +6,47 @@
     <title>Payments | Nyumbani</title>
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="../favicon.png" type="image/png">
 </head>
 <body>
 
 <div class="app-container">
+    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="logo-icon"><i class="fa-solid fa-u"></i></div>
-            NYUMBANI
+            <span id="logo-text">NYUMBANI</span>
         </div>
         <div class="user-profile">
-            <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="User">
-            <div class="name" id="sidebar-username">admin</div>
+            <img src="https://ui-avatars.com/api/?name=Admin&background=4361ee&color=fff" alt="User" id="sidebar-avatar">
+            <div class="name" id="sidebar-username">Admin</div>
             <i class="fa-solid fa-chevron-right text-muted"></i>
         </div>
         <div class="menu-section">
-            <div class="menu-title">--- MAIN MENU</div>
+            <div class="menu-title">MAIN MENU</div>
             <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-gauge"></i> Dashboard</a>
             <a href="houses.html" class="menu-item"><i class="fa-solid fa-building"></i> Houses</a>
             <a href="tenants.html" class="menu-item"><i class="fa-solid fa-users"></i> Tenants</a>
-            <a href="invoices.html" class="menu-item"><i class="fa-solid fa-credit-card"></i> Invoices</a>
-            <a href="payments.html" class="menu-item active"><i class="fa-solid fa-money-bill-wave"></i> Payments</a>
-            <a href="messages.html" class="menu-item"><i class="fa-solid fa-envelope"></i> Messages</a>
-            
-            <div class="menu-title" style="margin-top: 1.5rem;">--- OTHER</div>
-            <a href="#" class="menu-item"><i class="fa-solid fa-gear"></i> Accounts</a>
+            <a href="payments.html" class="menu-item active"><i class="fa-solid fa-money-bill-wave"></i> Payments <span class="badge badge-pending" id="badge-payments" style="display: none; margin-left: auto;">0</span></a>
+            <a href="announcements.html" class="menu-item"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+            <a href="maintenance.html" class="menu-item"><i class="fa-solid fa-wrench"></i> Maintenance <span class="badge badge-pending" id="badge-maintenance" style="display: none; margin-left: auto;">0</span></a>
+            <a href="messages.html" class="menu-item"><i class="fa-solid fa-envelope"></i> Messages <span class="badge badge-pending" id="badge-messages" style="display: none; margin-left: auto;">0</span></a>
+            <a href="directory.html" class="menu-item"><i class="fa-solid fa-address-book"></i> Referrals Directory</a>
+            <div class="menu-title" style="margin-top: 1.5rem;">OTHER</div>
+            <a href="settings.html" class="menu-item"><i class="fa-solid fa-gear"></i> Settings</a>
             <a href="#" id="logout-btn" class="menu-item"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</a>
         </div>
     </aside>
 
+    <!-- Main Content -->
     <div class="main-wrapper">
+        <!-- Topbar -->
         <header class="topbar">
             <div class="topbar-left">
-                <i class="fa-solid fa-circle-arrow-left" style="font-size: 1.2rem; cursor: pointer;"></i>
+                <button class="sidebar-toggle"><i class="fa-solid fa-bars"></i></button>
                 <div class="search-bar">
                     <input type="text" placeholder="Search...">
-                    <i class="fa-solid fa-magnifying-glass" style="color: #333;"></i>
+                    <i class="fa-solid fa-magnifying-glass"></i>
                 </div>
             </div>
             <div class="topbar-right">
@@ -49,9 +54,10 @@
             </div>
         </header>
 
+        <!-- Content Area -->
         <main class="content-area">
             <div class="page-header">
-                <div class="page-title">Verify Payments</div>
+                <div class="page-title">Payment Management</div>
                 <div class="breadcrumbs">
                     <a href="dashboard.html">Dashboard</a> / <span>Payments</span>
                 </div>
@@ -59,21 +65,25 @@
 
             <div class="white-card">
                 <div class="card-title">RECENT TRANSACTIONS</div>
-                <table class="data-table">
-                    <thead>
-                        <tr style="background: #f4f6f9;">
-                            <th>Date</th>
-                            <th>Tenant</th>
-                            <th>Ref Code</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="payments-list-body">
-                        <!-- Injected by JS -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr style="background: #f4f6f9;">
+                                <th>Date</th>
+                                <th>Tenant</th>
+                                <th>Ref Code</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-list-body">
+                            <tr class="empty-row">
+                                <td colspan="6">Loading payments...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
