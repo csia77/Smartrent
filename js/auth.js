@@ -9,7 +9,7 @@ const loginForm = document.getElementById("login-form");
 const errorDisplay = document.getElementById("error-message");
 const submitBtn = document.getElementById("btn-submit");
 
-console.log("[auth] module loaded");
+
 
 // Helpers
 
@@ -59,7 +59,7 @@ loginForm.addEventListener("submit", async (e) => {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-    console.log("[auth] attempting login for:", email);
+
 
     // Activate loading state
     setLoading(true);
@@ -68,7 +68,7 @@ loginForm.addEventListener("submit", async (e) => {
         // 1. Authenticate with Firebase
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        console.log("[auth] login ok, uid:", user.uid);
+
 
         // 2. Fetch user profile from Firestore
         const docRef = doc(db, "users", user.uid);
@@ -77,7 +77,7 @@ loginForm.addEventListener("submit", async (e) => {
         if (docSnap.exists()) {
             const userData = docSnap.data();
             const role = userData.role;
-            console.log("[auth] role:", role);
+
 
             // 3. Redirect based on role
             if (role === "admin") {
@@ -88,12 +88,12 @@ loginForm.addEventListener("submit", async (e) => {
                 showError("Your account has no assigned role. Contact your admin.");
             }
         } else {
-            console.warn("[auth] no profile for uid:", user.uid);
+
             showError("No profile found for this user. Contact your admin.");
         }
 
     } catch (error) {
-        console.error("[auth] login error:", error.code, error.message);
+        console.error("[auth] login error:", error.code);
         showError(friendlyError(error.code));
     }
 });
@@ -139,19 +139,18 @@ if (resetBtn) {
 
         try {
             await sendPasswordResetEmail(auth, email);
-            resetMessage.textContent = "Reset link sent! Check your inbox.";
+            // Always show a generic success message to prevent account enumeration.
+            resetMessage.textContent = "If an account exists with that email, a reset link has been sent.";
             resetMessage.style.color = "#10b981";
             resetMessage.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
             resetMessage.style.borderColor = "rgba(16, 185, 129, 0.15)";
             resetMessage.classList.replace("error-hidden", "error-visible");
         } catch (error) {
-            console.error('[auth] password reset error:', error.code);
-            resetMessage.textContent = error.code === "auth/user-not-found"
-                ? "No account found with that email."
-                : "Could not send reset email. Try again.";
-            resetMessage.style.color = "";
-            resetMessage.style.backgroundColor = "";
-            resetMessage.style.borderColor = "";
+            // Show the same generic message on failure to avoid leaking whether the email exists.
+            resetMessage.textContent = "If an account exists with that email, a reset link has been sent.";
+            resetMessage.style.color = "#10b981";
+            resetMessage.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
+            resetMessage.style.borderColor = "rgba(16, 185, 129, 0.15)";
             resetMessage.classList.replace("error-hidden", "error-visible");
         } finally {
             resetBtn.disabled = false;

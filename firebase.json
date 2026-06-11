@@ -11,7 +11,19 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**",
-      "public"
+      "firestore.rules",
+      "firestore.indexes.json",
+      "Project_Report.txt",
+      "README.md"
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "X-Frame-Options", "value": "DENY" }
+        ]
+      }
     ]
   }
 }
