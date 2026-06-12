@@ -1,7 +1,7 @@
 // register.js - tenant registration handler
 
 import { auth, db } from "./firebase-config.js";
-import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
     collection, query, where, getDocs,
     doc, setDoc, updateDoc, arrayUnion
@@ -64,7 +64,7 @@ registerForm.addEventListener("submit", async (e) => {
     const code     = document.getElementById("reg-code").value.trim();
     const password = document.getElementById("reg-password").value;
 
-    console.log("[register] attempting signup - email:", email, "code:", code);
+    console.log("[register] attempting signup");
 
     // Activate loading state
     setLoading(true);
@@ -94,26 +94,37 @@ registerForm.addEventListener("submit", async (e) => {
         const user = userCredential.user;
         console.log("[register] auth user created, uid:", user.uid);
 
-        // 4. Create User Profile in Firestore
-        console.log("[register] writing profile...");
-        await setDoc(doc(db, "users", user.uid), {
-            name:       name,
-            email:      email,
-            role:       "tenant",
-            houseId:    houseId,        // Link tenant -> house
-            balance:    0,              // Start with zero debt
-            rentAmount: houseData.rent || 0,  // Copy rent for quick access
-            createdAt:  new Date()      // Timestamp of account creation
-        });
-        console.log("[register] profile written");
+        // 4. Create User Profile and Link to House (handle Firestore updates)
+        try {
+            console.log("[register] writing profile...");
+            await setDoc(doc(db, "users", user.uid), {
+                name:       name,
+                email:      email,
+                role:       "tenant",
+                houseId:    houseId,        // Link tenant -> house
+                balance:    0,              // Start with zero debt
+                rentAmount: houseData.rent || 0,  // Copy rent for quick access
+                createdAt:  new Date()      // Timestamp of account creation
+            });
+            console.log("[register] profile written");
 
-        // 5. Update House Document
-        console.log("[register] updating house...");
-        await updateDoc(doc(db, "houses", houseId), {
-            tenantIds: arrayUnion(user.uid),
-            status:    "occupied"
-        });
-        console.log("[register] house updated");
+            // 5. Update House Document
+            console.log("[register] updating house...");
+            await updateDoc(doc(db, "houses", houseId), {
+                tenantIds: arrayUnion(user.uid),
+                status:    "occupied"
+            });
+            console.log("[register] house updated");
+        } catch (firestoreError) {
+            console.error("[register] Firestore setup failed. Rolling back user creation:", firestoreError);
+            try {
+                await deleteUser(user);
+                console.log("[register] rollback successful: auth user deleted");
+            } catch (deleteError) {
+                console.error("[register] rollback failed: could not delete auth user:", deleteError);
+            }
+            throw firestoreError;
+        }
 
         // 6. Success - redirect
         showToast(`Welcome, ${name}! You have successfully joined ${houseName}.`, "success");
