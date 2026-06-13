@@ -56,10 +56,12 @@ filterBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
         filterBtns.forEach((b) => {
             b.classList.remove("active-filter");
-            b.className = b.className.replace("btn-primary", "btn-outline");
+            b.classList.remove("btn-primary");
+            b.classList.add("btn-outline");
         });
         btn.classList.add("active-filter");
-        btn.className = btn.className.replace("btn-outline", "btn-primary");
+        btn.classList.remove("btn-outline");
+        btn.classList.add("btn-primary");
 
         currentFilter = btn.dataset.filter;
         renderTable();

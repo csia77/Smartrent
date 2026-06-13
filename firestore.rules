@@ -27,14 +27,22 @@ service cloud.firestore {
       allow read: if isOwner(userId) || isAdmin();
 
       // Self-registration is restricted to tenant role only.
-      // Admins can create any user profile (for manually adding tenants).
-      allow create: if (isOwner(userId) && request.resource.data.role == 'tenant')
+      // Required fields must be present and of the correct type.
+      allow create: if (isOwner(userId)
+                        && request.resource.data.role == 'tenant'
+                        && request.resource.data.name is string
+                        && request.resource.data.email is string
+                        && request.resource.data.houseId is string)
                     || isAdmin();
 
-      // Users can update their own profile but cannot change their role.
-      // Admins can update any profile freely.
-      allow update: if (isOwner(userId) && request.resource.data.role == resource.data.role)
-                    || isAdmin();
+      // Tenants can update their own profile but only the safe display fields.
+      // They cannot change their role, houseId, rentAmount, or balance.
+      allow update: if isAdmin()
+                    || (isOwner(userId)
+                        && request.resource.data.role == resource.data.role
+                        && request.resource.data.diff(resource.data)
+                              .affectedKeys()
+                              .hasOnly(['name', 'phone', 'profilePicture']));
 
       // Only admins can delete user profiles.
       allow delete: if isAdmin();
@@ -80,12 +88,19 @@ service cloud.firestore {
       // Any logged-in user can read announcements.
       allow read: if isSignedIn();
 
-      // Users can create announcements but must set createdBy to their own UID.
+      // Users can create announcements but must set createdBy to their own UID
+      // and provide title and message as non-empty strings.
       allow create: if isSignedIn()
-                    && request.resource.data.createdBy == request.auth.uid;
+                    && request.resource.data.createdBy == request.auth.uid
+                    && request.resource.data.title is string
+                    && request.resource.data.message is string;
 
       // Only admins or the original creator can edit or delete.
-      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.createdBy == request.auth.uid);
+      // On update, the createdBy field cannot be changed.
+      allow update, delete: if isAdmin()
+                            || (isSignedIn()
+                                && resource.data.createdBy == request.auth.uid
+                                && request.resource.data.createdBy == resource.data.createdBy);
     }
 
     // 5. MAINTENANCE REQUESTS COLLECTION
@@ -112,7 +127,11 @@ service cloud.firestore {
       allow read: if isAdmin();
 
       // Any signed-in user can create a message (must use their own UID).
-      allow create: if isSignedIn() && request.resource.data.tenantUid == request.auth.uid;
+      // The message field must be a non-empty string to prevent inbox flooding.
+      allow create: if isSignedIn()
+                    && request.resource.data.tenantUid == request.auth.uid
+                    && request.resource.data.message is string
+                    && request.resource.data.message.size() > 0;
 
       // Nobody can update or delete anonymous messages.
       allow update, delete: if false;

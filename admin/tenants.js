@@ -18,15 +18,6 @@ import {
 import { db } from "../js/firebase-config.js";
 import { guardPage, setupLogout, showToast } from "../js/auth-guard.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCQDKELJbF8O6jCVG2VnVEhhuhxQEwPzKs",
-    authDomain: "smart-rent-5fe3d.firebaseapp.com",
-    projectId: "smart-rent-5fe3d",
-    storageBucket: "smart-rent-5fe3d.firebasestorage.app",
-    messagingSenderId: "731695067009",
-    appId: "1:731695067009:web:f5e99292759873eaf30280"
-};
-
 // DOM refs
 const tbody = document.getElementById("tenants-table-body");
 const addModal = document.getElementById("add-tenant-modal");
@@ -52,11 +43,14 @@ const housesMap = new Map(); // houseId to house data
 let editingTenantId = null;
 
 // Auth
-guardPage("admin", (user, userData) => {
+// loadHousesForDropdown is awaited before listenToTenants so that housesMap is
+// populated before the first snapshot fires. Without the await, tenants would
+// show as "Unassigned" on the initial load.
+guardPage("admin", async (user, userData) => {
     const sidebarName = document.getElementById("sidebar-username");
     if (sidebarName) sidebarName.textContent = userData.name || "Admin";
 
-    loadHousesForDropdown();
+    await loadHousesForDropdown();
     listenToTenants();
 });
 

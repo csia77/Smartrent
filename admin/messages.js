@@ -59,19 +59,26 @@ const listenToMessages = () => {
 
             const card = document.createElement("div");
             card.className = "white-card";
+
+            // Build the card layout with static HTML only.
+            // The message text is set separately via textContent to prevent XSS.
             card.innerHTML = `
                 <div style="display: flex; gap: 1rem; align-items: flex-start;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary-blue-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fa-solid fa-envelope" style="color: var(--primary-blue); font-size: 1rem;"></i>
                     </div>
                     <div style="flex: 1;">
-                        <p style="color: var(--text-main); margin-bottom: 0.5rem; white-space: pre-wrap;">${msg.message}</p>
+                        <p class="msg-body" style="color: var(--text-main); margin-bottom: 0.5rem; white-space: pre-wrap;"></p>
                         <div style="font-size: 0.8rem; color: var(--text-muted);">
                             <i class="fa-regular fa-clock"></i> ${dateStr}
                         </div>
                     </div>
                 </div>
             `;
+
+            // Set the message text safely so HTML tags from tenants are not executed.
+            card.querySelector(".msg-body").textContent = msg.message;
+
             container.appendChild(card);
         });
 

@@ -43,7 +43,7 @@ export function guardPage(requiredRole, onReady) {
             }
 
             // All good! Call the onReady callback
-            console.log(`Auth Guard: ${userData.role} authorized - ${user.email}`);
+            console.log(`Auth Guard: ${userData.role} authorized`);
 
             const sidebarName = document.getElementById("sidebar-username");
             if (sidebarName) {
@@ -51,10 +51,10 @@ export function guardPage(requiredRole, onReady) {
             }
             const sidebarAvatar = document.getElementById("sidebar-avatar");
             if (sidebarAvatar) {
-                if (userData.profilePicture) {
+                if (userData.profilePicture && isSafeUrl(userData.profilePicture)) {
                     sidebarAvatar.src = userData.profilePicture;
                 } else {
-                    const avatarName = userData.name || user.email || (userData.role === "admin" ? "Admin" : "Tenant");
+                    const avatarName = userData.name || (userData.role === "admin" ? "Admin" : "Tenant");
                     sidebarAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(avatarName)}&background=random`;
                 }
             }
@@ -132,6 +132,17 @@ export function setupLogout() {
     }
 }
 
+// Validates that a URL uses http or https before it is assigned to an img.src.
+// Prevents javascript: and data: URI injection.
+function isSafeUrl(url) {
+    try {
+        const parsed = new URL(url);
+        return parsed.protocol === "https:" || parsed.protocol === "http:";
+    } catch {
+        return false;
+    }
+}
+
 // Toast notifications
 // Shows a brief popup message at the top-right corner.
 
@@ -154,11 +165,20 @@ export function showToast(message, type = "info", duration = 4000) {
 
     const toast = document.createElement("div");
     toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-        <i class="fa-solid ${icons[type] || icons.info}"></i>
-        <span class="toast-message">${message}</span>
-        <button class="toast-close" aria-label="Close">&times;</button>
-    `;
+
+    const icon = document.createElement("i");
+    icon.className = `fa-solid ${icons[type] || icons.info}`;
+
+    const messageSpan = document.createElement("span");
+    messageSpan.className = "toast-message";
+    messageSpan.textContent = message;
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "toast-close";
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.textContent = "\u00D7";
+
+    toast.append(icon, messageSpan, closeBtn);
 
     // Close button
     toast.querySelector(".toast-close").addEventListener("click", () => {
