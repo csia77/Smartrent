@@ -67,7 +67,7 @@ html {
 }
 
 body {
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', Arial, sans-serif;
     background-color: var(--bg-body);
     color: var(--text-main);
     line-height: 1.6;
@@ -934,6 +934,19 @@ textarea.form-control {
 }
 
 /* --- 22. MOBILE RESPONSIVE --- */
+
+/* Tablet: keep sidebar but shrink stat grid to 2 columns */
+@media (max-width: 1024px) {
+    .card-grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .content-area {
+        padding: 1.25rem;
+    }
+}
+
+/* Mobile: off-canvas sidebar, reflow tables, full-width modals */
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);
@@ -955,11 +968,18 @@ textarea.form-control {
         padding: 1rem;
     }
 
+    /* Hide the desktop search bar; mobile search is not needed on every page */
     .search-bar {
         display: none;
     }
 
+    /* Stat grid becomes single column on phones */
     .card-grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    /* Grid helpers */
+    .grid-2 {
         grid-template-columns: 1fr;
     }
 
@@ -970,25 +990,39 @@ textarea.form-control {
     }
 
     .page-title {
-        font-size: 1.5rem !important;
+        font-size: 1.25rem !important;
+    }
+
+    /* Table-responsive wrapper keeps the table from blowing out the layout */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Modal: fill the screen on mobile */
+    .modal-overlay {
+        padding: 0;
+        align-items: flex-end;
     }
 
     .modal {
-        max-width: calc(100% - 1rem);
-        margin: 0.5rem;
+        max-width: 100%;
+        width: 100%;
+        max-height: 92vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     }
 
-    /* Mobile responsive tables (reflow cards instead of scroll) */
-    .data-table, 
-    .data-table thead, 
-    .data-table tbody, 
-    .data-table th, 
-    .data-table td, 
+    /* Reflow data tables into stacked cards on mobile */
+    .data-table,
+    .data-table thead,
+    .data-table tbody,
+    .data-table th,
+    .data-table td,
     .data-table tr {
         display: block;
     }
 
-    /* Hide table headers on mobile */
+    /* Hide table headers visually but keep them accessible via data-label */
     .data-table thead tr {
         position: absolute;
         top: -9999px;
@@ -1020,7 +1054,7 @@ textarea.form-control {
         border-bottom: 0;
     }
 
-    /* Show headers via dynamic data-label attributes */
+    /* Inject the column label on the left via the data-label attribute */
     .data-table td::before {
         content: attr(data-label);
         position: absolute;
@@ -1031,27 +1065,71 @@ textarea.form-control {
         text-align: left;
         font-weight: 600;
         color: var(--text-dark);
+        font-size: 0.8rem;
     }
 
-    /* Empty row fallback alignment */
+    /* Restore centering for the empty-state row */
     .data-table .empty-row td {
         text-align: center;
-        padding: 2rem;
-        padding-left: 1rem !important;
+        padding: 2rem 1rem !important;
         justify-content: center;
     }
 
     .data-table .empty-row td::before {
         display: none;
     }
-}
 
-@media (max-width: 480px) {
-    .toast {
-        min-width: auto;
-        max-width: calc(100vw - 2rem);
+    /* Action buttons inside table cells wrap properly */
+    .data-table td .btn {
+        margin: 2px;
+    }
+
+    /* Announcement action buttons stack */
+    .announcement-card .announcement-actions {
+        flex-wrap: wrap;
+    }
+
+    /* flex-end rows wrap on mobile */
+    .flex-end {
+        flex-wrap: wrap;
     }
 }
+
+/* Small phones: tighten further */
+@media (max-width: 480px) {
+    .topbar {
+        padding: 0 0.875rem;
+    }
+
+    .content-area {
+        padding: 0.75rem;
+    }
+
+    .white-card {
+        padding: 1rem;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 1rem;
+    }
+
+    .toast {
+        min-width: auto;
+        max-width: calc(100vw - 1.5rem);
+        font-size: 0.85rem;
+    }
+
+    .page-title {
+        font-size: 1.1rem !important;
+    }
+
+    .widget-card .value {
+        font-size: 1.6rem;
+    }
+}
+
 
 /* Skeleton Loading Animation */
 @keyframes skeleton-loading {
