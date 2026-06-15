@@ -1,70 +1,171 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Nyumbani</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="Nyumbani Rental Management - Sign in to manage your rental property or view your tenant dashboard.">
+    <title>Sign In | Nyumbani</title>
     <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <!-- Login Card -->
-    <main class="auth-container">
-        <div class="card auth-card">
+    <!-- Animated gradient background -->
+    <div class="auth-bg" aria-hidden="true"></div>
 
-            <!-- Brand Header -->
-            <div class="brand-header">
-                <h1>Nyumbani</h1>
-                <p>Welcome back</p>
-            </div>
+    <div class="auth-wrapper">
+        <div class="auth-card">
 
-            <!-- Login Form -->
-            <form id="login-form">
-                <div class="input-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" placeholder="you@example.com" required>
+            <!-- Left brand panel -->
+            <aside class="auth-brand">
+                <div class="brand-top">
+                    <div class="brand-logo">
+                        <div class="brand-logo-icon">
+                            <i class="fa-solid fa-house-chimney"></i>
+                        </div>
+                        <div>
+                            <div class="brand-name">Nyumbani</div>
+                            <div class="brand-tagline">Rental Management</div>
+                        </div>
+                    </div>
+
+                    <h2 class="brand-headline">Managing your home, simplified.</h2>
+                    <p class="brand-description">
+                        One platform for landlords and tenants. Track rent, maintenance,
+                        announcements, and more from a single dashboard.
+                    </p>
+
+                    <ul class="brand-features">
+                        <li><span class="check"><i class="fa-solid fa-check"></i></span> Real-time payment tracking</li>
+                        <li><span class="check"><i class="fa-solid fa-check"></i></span> Maintenance request management</li>
+                        <li><span class="check"><i class="fa-solid fa-check"></i></span> Tenant and house directory</li>
+                        <li><span class="check"><i class="fa-solid fa-check"></i></span> Secure, role-based access</li>
+                    </ul>
                 </div>
 
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Enter your password" required>
+                <div class="brand-bottom">
+                    <p class="brand-footer-text">Nyumbani &copy; 2025. All rights reserved.</p>
+                </div>
+            </aside>
+
+            <!-- Right form panel -->
+            <section class="auth-form-panel">
+
+                <!-- Login Form (shown by default) -->
+                <div id="login-view">
+                    <div class="form-panel-header">
+                        <h2>Welcome back</h2>
+                        <p>Sign in to your account to continue</p>
+                    </div>
+
+                    <form id="login-form" novalidate>
+                        <div class="input-group">
+                            <label for="email">Email Address</label>
+                            <div class="input-wrap">
+                                <i class="fa-regular fa-envelope input-icon"></i>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    placeholder="you@example.com"
+                                    autocomplete="email"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="password">Password</label>
+                            <div class="input-wrap">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Enter your password"
+                                    autocomplete="current-password"
+                                    required
+                                >
+                                <button type="button" class="pwd-toggle" id="pwd-toggle-login" aria-label="Toggle password visibility">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Error banner (hidden by default) -->
+                        <div id="error-message" class="error-hidden" role="alert" aria-live="polite"></div>
+
+                        <button type="submit" id="btn-submit" class="btn-primary">Sign In</button>
+                    </form>
+
+                    <div class="auth-footer">
+                        <p>New tenant? <a href="register.html">Join your house</a></p>
+                        <p><a href="#" id="forgot-password-link">Forgot your password?</a></p>
+                    </div>
                 </div>
 
-                <!-- Error banner (hidden by default) -->
-                <div id="error-message" class="error-hidden"></div>
+                <!-- Password Reset (hidden by default) -->
+                <div id="reset-section" style="display: none;">
+                    <div class="form-panel-header">
+                        <h2>Reset password</h2>
+                        <p>Enter your email and we will send you a reset link</p>
+                    </div>
 
-                <!-- Submit button with loading support -->
-                <button type="submit" id="btn-submit" class="btn-primary">Sign In</button>
-            </form>
+                    <div class="input-group">
+                        <label for="reset-email">Email Address</label>
+                        <div class="input-wrap">
+                            <i class="fa-regular fa-envelope input-icon"></i>
+                            <input
+                                type="email"
+                                id="reset-email"
+                                name="reset-email"
+                                placeholder="you@example.com"
+                                autocomplete="email"
+                            >
+                        </div>
+                    </div>
 
-            <!-- Password Reset -->
-            <div id="reset-section" style="display: none;">
-                <div class="brand-header" style="margin-bottom: 1rem;">
-                    <h2 style="font-size: 1.2rem; color: var(--text-main);">Reset Password</h2>
-                    <p>Enter your email and we'll send a reset link</p>
+                    <div id="reset-message" class="error-hidden" role="alert" aria-live="polite"></div>
+
+                    <button type="button" id="reset-btn" class="btn-primary">Send Reset Link</button>
+
+                    <div class="auth-footer">
+                        <p><a href="#" id="back-to-login">Back to sign in</a></p>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label for="reset-email">Email Address</label>
-                    <input type="email" id="reset-email" placeholder="you@example.com" required>
-                </div>
-                <div id="reset-message" class="error-hidden"></div>
-                <button type="button" id="reset-btn" class="btn-primary">Send Reset Link</button>
-                <div class="auth-footer" style="margin-top: 1rem;">
-                    <p><a href="#" id="back-to-login">Back to Login</a></p>
-                </div>
-            </div>
 
-            <!-- Footer links -->
-            <div class="auth-footer">
-                <p>New Tenant? <a href="register.html">Join Your House</a></p>
-                <p><a href="#" id="forgot-password-link">Forgot password?</a></p>
-            </div>
-
+            </section>
         </div>
-    </main>
+    </div>
 
-    <!-- Auth logic (ES module) -->
+    <!-- Auth logic -->
     <script type="module" src="js/auth.js"></script>
+
+    <!-- Input focus highlight and password toggle -->
+    <script>
+        document.querySelectorAll('.input-wrap input').forEach(function(input) {
+            input.addEventListener('focus', function() {
+                this.closest('.input-wrap').classList.add('focused');
+            });
+            input.addEventListener('blur', function() {
+                this.closest('.input-wrap').classList.remove('focused');
+            });
+        });
+
+        document.getElementById('pwd-toggle-login').addEventListener('click', function() {
+            var input = document.getElementById('password');
+            var icon  = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-regular fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-regular fa-eye';
+            }
+        });
+    </script>
 </body>
 </html>

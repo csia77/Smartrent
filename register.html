@@ -1,63 +1,168 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nyumbani Rental Management - Create your tenant account to access your rental dashboard.">
     <title>Register | Nyumbani</title>
-    <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <!-- Registration Card -->
-    <main class="auth-container">
-        <div class="card auth-card">
+    <!-- Animated gradient background -->
+    <div class="auth-bg" aria-hidden="true"></div>
 
-            <!-- Brand Header -->
-            <div class="brand-header">
-                <h1>Nyumbani</h1>
-                <p>Join your house</p>
-            </div>
+    <div class="auth-wrapper">
+        <div class="auth-card">
 
-            <!-- Registration Form -->
-            <form id="register-form">
-                <div class="input-group">
-                    <label for="reg-name">Full Name</label>
-                    <input type="text" id="reg-name" placeholder="John Doe" required>
+            <!-- Left brand panel -->
+            <aside class="auth-brand">
+                <div class="brand-top">
+                    <div class="brand-logo">
+                        <div class="brand-logo-icon">
+                            <i class="fa-solid fa-house-chimney"></i>
+                        </div>
+                        <div>
+                            <div class="brand-name">Nyumbani</div>
+                            <div class="brand-tagline">Rental Management</div>
+                        </div>
+                    </div>
+
+                    <h2 class="brand-headline">Your home, your dashboard.</h2>
+                    <p class="brand-description">
+                        Set up your tenant account in under a minute. You will need the
+                        house code from your landlord or caretaker to get started.
+                    </p>
+
+                    <ul class="brand-features">
+                        <li><span class="check"><i class="fa-solid fa-check"></i></span> Pay rent and track your balance</li>
+                        <li><span class="check"><i class="fa-solid fa-check"></i></span> Submit maintenance requests</li>
+                        <li><span class="check"><i class="fa-solid fa-check"></i></span> Read property announcements</li>
+                        <li><span class="check"><i class="fa-solid fa-check"></i></span> Message admin anonymously</li>
+                    </ul>
                 </div>
 
-                <div class="input-group">
-                    <label for="reg-email">Email Address</label>
-                    <input type="email" id="reg-email" placeholder="example@gmail.com" required>
+                <div class="brand-bottom">
+                    <p class="brand-footer-text">Nyumbani &copy; 2025. All rights reserved.</p>
+                </div>
+            </aside>
+
+            <!-- Right form panel -->
+            <section class="auth-form-panel">
+                <div class="form-panel-header">
+                    <h2>Create your account</h2>
+                    <p>Fill in your details to join your house</p>
                 </div>
 
-                <div class="input-group">
-                    <label for="reg-code">House Code (From Landlord)</label>
-                    <input type="text" id="reg-code" placeholder="e.g. ROOM-1-KEY" required>
-                    <small class="input-hint">Ask your caretaker for this code.</small>
+                <form id="register-form" novalidate>
+                    <div class="input-group">
+                        <label for="reg-name">Full Name</label>
+                        <div class="input-wrap">
+                            <i class="fa-regular fa-user input-icon"></i>
+                            <input
+                                type="text"
+                                id="reg-name"
+                                name="fullname"
+                                placeholder="John Doe"
+                                autocomplete="name"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="reg-email">Email Address</label>
+                        <div class="input-wrap">
+                            <i class="fa-regular fa-envelope input-icon"></i>
+                            <input
+                                type="email"
+                                id="reg-email"
+                                name="email"
+                                placeholder="you@example.com"
+                                autocomplete="email"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="reg-code">House Code</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-key input-icon"></i>
+                            <input
+                                type="text"
+                                id="reg-code"
+                                name="housecode"
+                                placeholder="e.g. ROOM-1-KEY"
+                                autocomplete="off"
+                                required
+                            >
+                        </div>
+                        <small class="input-hint">Get this code from your landlord or caretaker.</small>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="reg-password">Password</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input
+                                type="password"
+                                id="reg-password"
+                                name="password"
+                                placeholder="Min. 6 characters"
+                                autocomplete="new-password"
+                                required
+                                minlength="6"
+                            >
+                            <button type="button" class="pwd-toggle" id="pwd-toggle-reg" aria-label="Toggle password visibility">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Error banner (hidden by default) -->
+                    <div id="error-message" class="error-hidden" role="alert" aria-live="polite"></div>
+
+                    <button type="submit" id="btn-submit" class="btn-primary">Create Account &amp; Join</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="index.html">Sign in here</a></p>
                 </div>
-
-                <div class="input-group">
-                    <label for="reg-password">Password</label>
-                    <input type="password" id="reg-password" placeholder="Create a password" required minlength="6">
-                </div>
-
-                <!-- Error banner (hidden by default) -->
-                <div id="error-message" class="error-hidden"></div>
-
-                <!-- Submit button with loading support -->
-                <button type="submit" id="btn-submit" class="btn-primary">Register &amp; Join</button>
-            </form>
-
-            <!-- Footer link back to login -->
-            <div class="auth-footer">
-                <p>Already have an account? <a href="index.html">Login here</a></p>
-            </div>
+            </section>
 
         </div>
-    </main>
+    </div>
 
-    <!-- Registration logic (ES module) -->
+    <!-- Registration logic -->
     <script type="module" src="js/register.js"></script>
+
+    <!-- Input focus highlight and password toggle -->
+    <script>
+        document.querySelectorAll('.input-wrap input').forEach(function(input) {
+            input.addEventListener('focus', function() {
+                this.closest('.input-wrap').classList.add('focused');
+            });
+            input.addEventListener('blur', function() {
+                this.closest('.input-wrap').classList.remove('focused');
+            });
+        });
+
+        document.getElementById('pwd-toggle-reg').addEventListener('click', function() {
+            var input = document.getElementById('reg-password');
+            var icon  = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-regular fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-regular fa-eye';
+            }
+        });
+    </script>
 </body>
 </html>
