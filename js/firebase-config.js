@@ -23,4 +23,4 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Export them so other files can use them
-export { auth, db };
+export { auth, db, firebaseConfig };

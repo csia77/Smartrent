@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -124,6 +124,24 @@
                         <select class="form-control" id="tenant-house-select" required>
                             <option value="">-- Select a house --</option>
                         </select>
+                    </div>
+
+                    <!-- Inline new-house sub-form, shown only when "+ Create new house" is selected -->
+                    <div id="new-house-panel" style="display: none; background: var(--bg-body); border-radius: var(--radius-md); padding: 1rem; margin-top: 0.25rem; border: 1px dashed var(--primary-blue);">
+                        <p style="font-size: 0.8rem; font-weight: 600; color: var(--primary-blue); margin-bottom: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em;">New Unit Details</p>
+                        <div class="form-group">
+                            <label for="new-house-name">Unit Name</label>
+                            <input type="text" class="form-control" id="new-house-name" placeholder="e.g. Room 5 / Flat B">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-house-rent">Monthly Rent (KES)</label>
+                            <input type="number" class="form-control" id="new-house-rent" placeholder="e.g. 12000" min="1">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="new-house-code">House Code</label>
+                            <input type="text" class="form-control" id="new-house-code" placeholder="e.g. ROOM-5-KEY">
+                            <small style="display: block; margin-top: 0.3rem; font-size: 0.78rem; color: var(--text-muted);">Tenants use this code to self-register later.</small>
+                        </div>
                     </div>
                 </form>
             </div>

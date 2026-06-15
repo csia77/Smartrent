@@ -7,6 +7,7 @@ import {
     updateDoc,
     collection,
     getDocs,
+    addDoc,
     onSnapshot,
     query,
     where,
@@ -15,28 +16,34 @@ import {
     deleteDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { db } from "../js/firebase-config.js";
+import { db, firebaseConfig } from "../js/firebase-config.js";
 import { guardPage, setupLogout, showToast } from "../js/auth-guard.js";
 
 // DOM refs
-const tbody = document.getElementById("tenants-table-body");
-const addModal = document.getElementById("add-tenant-modal");
-const addBtn = document.getElementById("add-tenant-btn");
-const closeTenantModal = document.getElementById("close-tenant-modal");
+const tbody         = document.getElementById("tenants-table-body");
+const addModal      = document.getElementById("add-tenant-modal");
+const addBtn        = document.getElementById("add-tenant-btn");
+const closeTenantModal  = document.getElementById("close-tenant-modal");
 const cancelTenantModal = document.getElementById("cancel-tenant-modal");
-const submitTenantBtn = document.getElementById("submit-tenant-btn");
-const nameInput = document.getElementById("tenant-name-input");
-const emailInput = document.getElementById("tenant-email-input");
+const submitTenantBtn   = document.getElementById("submit-tenant-btn");
+const nameInput     = document.getElementById("tenant-name-input");
+const emailInput    = document.getElementById("tenant-email-input");
 const passwordInput = document.getElementById("tenant-password-input");
-const houseSelect = document.getElementById("tenant-house-select");
+const houseSelect   = document.getElementById("tenant-house-select");
+
+// New-house sub-form refs
+const newHousePanel = document.getElementById("new-house-panel");
+const newHouseName  = document.getElementById("new-house-name");
+const newHouseRent  = document.getElementById("new-house-rent");
+const newHouseCode  = document.getElementById("new-house-code");
 
 // Edit rent modal
-const rentModal = document.getElementById("edit-rent-modal");
-const closeRentModal = document.getElementById("close-rent-modal");
-const cancelRentModal = document.getElementById("cancel-rent-modal");
-const saveRentBtn = document.getElementById("save-rent-btn");
+const rentModal          = document.getElementById("edit-rent-modal");
+const closeRentModal     = document.getElementById("close-rent-modal");
+const cancelRentModal    = document.getElementById("cancel-rent-modal");
+const saveRentBtn        = document.getElementById("save-rent-btn");
 const currentRentDisplay = document.getElementById("current-rent-display");
-const editRentInput = document.getElementById("edit-rent-input");
+const editRentInput      = document.getElementById("edit-rent-input");
 
 // State
 const housesMap = new Map(); // houseId to house data
@@ -69,6 +76,7 @@ if (toggleBtn && sidebar) {
 const loadHousesForDropdown = async () => {
     try {
         const snapshot = await getDocs(collection(db, "houses"));
+        // Reset to default options
         houseSelect.innerHTML = `<option value="">-- Select a house --</option>`;
         housesMap.clear();
 
@@ -82,11 +90,29 @@ const loadHousesForDropdown = async () => {
             option.textContent = `${house.name} (${house.code}) - KES ${Number(house.rent).toLocaleString()}`;
             houseSelect.appendChild(option);
         });
+
+        // Always add the "create new" option at the bottom, separated visually
+        const newOption = document.createElement("option");
+        newOption.value = "__new__";
+        newOption.textContent = "+ Create a new unit";
+        newOption.style.fontWeight = "600";
+        newOption.style.color = "var(--primary-blue)";
+        houseSelect.appendChild(newOption);
+
     } catch (error) {
         console.error("Error loading houses:", error);
         showToast("Failed to load houses", "error");
     }
 };
+
+// Show or hide the new-house sub-form based on the dropdown selection
+houseSelect.addEventListener("change", () => {
+    if (houseSelect.value === "__new__") {
+        newHousePanel.style.display = "block";
+    } else {
+        newHousePanel.style.display = "none";
+    }
+});
 
 // Listen to tenants (Real-time)
 const listenToTenants = () => {
@@ -178,10 +204,14 @@ const deleteTenant = async (tenantId, houseId) => {
 const openAddModal = () => addModal.classList.add("active");
 const closeAddModal = () => {
     addModal.classList.remove("active");
-    nameInput.value = "";
-    emailInput.value = "";
-    passwordInput.value = "";
-    houseSelect.value = "";
+    nameInput.value         = "";
+    emailInput.value        = "";
+    passwordInput.value     = "";
+    houseSelect.value       = "";
+    newHousePanel.style.display = "none";
+    newHouseName.value      = "";
+    newHouseRent.value      = "";
+    newHouseCode.value      = "";
 };
 
 addBtn.addEventListener("click", openAddModal);
@@ -193,12 +223,13 @@ addModal.addEventListener("click", (e) => {
 
 // Submit New Tenant
 submitTenantBtn.addEventListener("click", async () => {
-    const name = nameInput.value.trim();
-    const email = emailInput.value.trim();
+    const name     = nameInput.value.trim();
+    const email    = emailInput.value.trim();
     const password = passwordInput.value.trim();
-    const houseId = houseSelect.value;
+    const selectedValue = houseSelect.value;
+    const isNewHouse    = selectedValue === "__new__";
 
-    if (!name || !email || !password || !houseId) {
+    if (!name || !email || !password || !selectedValue) {
         showToast("Please fill in all fields", "warning");
         return;
     }
@@ -208,59 +239,101 @@ submitTenantBtn.addEventListener("click", async () => {
         return;
     }
 
-    const house = housesMap.get(houseId);
-    if (!house) {
-        showToast("Invalid house selected", "error");
-        return;
+    // When creating a new house, validate its fields too
+    if (isNewHouse) {
+        const hn = newHouseName.value.trim();
+        const hr = newHouseRent.value.trim();
+        const hc = newHouseCode.value.trim();
+        if (!hn || !hr || !hc) {
+            showToast("Please fill in all new unit details", "warning");
+            return;
+        }
+        if (Number(hr) <= 0) {
+            showToast("Rent amount must be greater than zero", "warning");
+            return;
+        }
+    } else {
+        // Existing house -- verify it is still in the map
+        if (!housesMap.get(selectedValue)) {
+            showToast("Selected house is no longer valid. Please refresh.", "error");
+            return;
+        }
     }
 
     submitTenantBtn.disabled = true;
     submitTenantBtn.innerHTML = `<span class="spinner"></span> Creating...`;
 
-    let tempApp = null;
+    let tempApp  = null;
+    let houseId  = selectedValue;
+    let rentAmount = 0;
 
     try {
-        // Create a temporary Firebase app to avoid signing out the admin
-        tempApp = initializeApp(firebaseConfig, "temp-auth");
-        const tempAuth = getAuth(tempApp);
+        // Step 1: if a new house was requested, create it first
+        if (isNewHouse) {
+            const hn = newHouseName.value.trim();
+            const hr = Number(newHouseRent.value.trim());
+            const hc = newHouseCode.value.trim();
 
-        // Create the user account
+            const houseRef = await addDoc(collection(db, "houses"), {
+                name:      hn,
+                rent:      hr,
+                code:      hc,
+                status:    "vacant",
+                tenantIds: [],
+                createdAt: serverTimestamp()
+            });
+
+            houseId    = houseRef.id;
+            rentAmount = hr;
+
+            // Keep the local map in sync so the table reflects this immediately
+            housesMap.set(houseId, { name: hn, rent: hr, code: hc, status: "vacant" });
+        } else {
+            rentAmount = housesMap.get(houseId).rent;
+        }
+
+        // Step 2: create the Firebase Auth account using a secondary app instance
+        // so the admin session is not interrupted
+        tempApp = initializeApp(firebaseConfig, "temp-auth-" + Date.now());
+        const tempAuth = getAuth(tempApp);
         const cred = await createUserWithEmailAndPassword(tempAuth, email, password);
         const tenantUid = cred.user.uid;
 
-        // Write user profile to Firestore
+        // Step 3: write the tenant profile to Firestore
         await setDoc(doc(db, "users", tenantUid), {
             name,
             email,
-            role: "tenant",
+            role:        "tenant",
             houseId,
-            rentAmount: house.rent,
-            createdAt: serverTimestamp(),
-            balance: 0
+            rentAmount,
+            createdAt:   serverTimestamp(),
+            balance:     0
         });
 
-        // Update house: add tenant and set status to occupied
+        // Step 4: mark the house as occupied and add the tenant to its list
         await updateDoc(doc(db, "houses", houseId), {
             tenantIds: arrayUnion(tenantUid),
-            status: "occupied"
+            status:    "occupied"
         });
 
         showToast(`Tenant "${name}" created successfully!`, "success");
         closeAddModal();
+        // Reload the dropdown so the new house appears for future adds
+        await loadHousesForDropdown();
 
     } catch (error) {
         console.error("Error creating tenant:", error);
         if (error.code === "auth/email-already-in-use") {
-            showToast("Email is already in use", "error");
+            showToast("This email address is already in use", "error");
         } else if (error.code === "auth/invalid-email") {
             showToast("Invalid email address", "error");
         } else {
             showToast("Failed to create tenant: " + error.message, "error");
         }
     } finally {
-        // Always clean up the temp app
+        // Always tear down the temporary auth app
         if (tempApp) {
-            try { await deleteApp(tempApp); } catch (e) { /* ignore */ }
+            try { await deleteApp(tempApp); } catch (e) { /* ignore cleanup errors */ }
         }
         submitTenantBtn.disabled = false;
         submitTenantBtn.innerHTML = `<i class="fa-solid fa-plus"></i> Add Tenant`;
