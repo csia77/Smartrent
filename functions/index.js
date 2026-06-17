@@ -13,11 +13,14 @@ const db = admin.firestore();
 // Email transport
 // Credentials are set via Firebase Functions config:
 //   firebase functions:config:set email.user="you@gmail.com" email.pass="app-password"
-// ---------------------------------------------------------------------------
+// nodemailer v9 requires explicit host/port -- the `service` shorthand was removed.
+// Gmail: host smtp.gmail.com, port 587, STARTTLS (secure: false with opportunistic upgrade).
 function createTransport() {
     const config = functions.config().email || {};
     return nodemailer.createTransport({
-        service: "gmail",
+        host:   "smtp.gmail.com",
+        port:   587,
+        secure: false, // STARTTLS -- nodemailer upgrades the connection automatically
         auth: {
             user: config.user || "",
             pass: config.pass || "",
