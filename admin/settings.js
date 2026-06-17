@@ -1,18 +1,14 @@
 // admin/settings.js
-import { auth, db } from "../js/firebase-config.js";
+import { auth, db, storage } from "../js/firebase-config.js";
 import { guardPage, setupLogout, showToast } from "../js/auth-guard.js";
 import {
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    addDoc,
-    deleteDoc,
-    collection,
-    onSnapshot,
-    serverTimestamp
+    doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc,
+    collection, onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+    ref, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 // DOM References
 const profileForm = document.getElementById("profile-form");
@@ -36,8 +32,9 @@ const btnUploadUrl = document.getElementById("btn-upload-url");
 const fileInput = document.getElementById("profile-file-input");
 const urlInput = document.getElementById("profile-url-input");
 
-let currentAdminId = null;
-let profilePictureBase64 = null;
+let currentAdminId        = null;
+let profilePictureUrl     = null; // stores the final URL (from Storage or a pasted URL)
+let pendingUploadFile     = null; // File object staged for upload on save
 
 // Auth Guard
 guardPage("admin", async (user, userData) => {
@@ -51,7 +48,7 @@ guardPage("admin", async (user, userData) => {
 
     if (userData.profilePicture) {
         profilePreview.src = userData.profilePicture;
-        profilePictureBase64 = userData.profilePicture;
+        profilePictureUrl = userData.profilePicture;
     } else {
         profilePreview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || "Admin")}&background=4361ee&color=fff`;
     }
@@ -77,9 +74,11 @@ if (btnUploadPc && fileInput) {
     btnUploadPc.addEventListener("click", () => fileInput.click());
     fileInput.addEventListener("change", (e) => {
         const file = e.target.files[0];
-        if (file) {
-            handleImageFile(file);
-        }
+        if (!file) return;
+        // Preview immediately; the actual upload happens on form save
+        pendingUploadFile = file;
+        profilePreview.src = URL.createObjectURL(file);
+        profilePictureUrl = null; // clear any previously pasted URL
     });
 }
 
@@ -92,43 +91,10 @@ if (btnUploadUrl && urlInput) {
         const url = e.target.value.trim();
         if (url) {
             profilePreview.src = url;
-            profilePictureBase64 = url;
+            profilePictureUrl = url;
+            pendingUploadFile = null; // clear any staged file
         }
     });
-}
-
-function handleImageFile(file) {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const img = new Image();
-        img.onload = function() {
-            const canvas = document.createElement("canvas");
-            const maxDim = 150;
-            let width = img.width;
-            let height = img.height;
-            if (width > height) {
-                if (width > maxDim) {
-                    height *= maxDim / width;
-                    width = maxDim;
-                }
-            } else {
-                if (height > maxDim) {
-                    width *= maxDim / height;
-                    height = maxDim;
-                }
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            const base64 = canvas.toDataURL("image/jpeg", 0.75);
-            profilePreview.src = base64;
-            profilePictureBase64 = base64;
-        };
-        img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
 }
 
 // Load settings from Firestore
@@ -185,7 +151,7 @@ const updateSidebarLogo = (name) => {
 // Profile settings save
 profileForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const name = nameInput.value.trim();
+    const name  = nameInput.value.trim();
     const phone = phoneInput.value.trim();
 
     if (!name) {
@@ -195,27 +161,35 @@ profileForm.addEventListener("submit", async (e) => {
 
     const submitBtn = document.getElementById("save-profile-btn");
     submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner"></span> Saving...';
 
     try {
+        // If a file was staged for upload, push it to Firebase Storage first
+        if (pendingUploadFile) {
+            const storageRef = ref(storage, `profiles/${currentAdminId}`);
+            const snapshot   = await uploadBytes(storageRef, pendingUploadFile);
+            profilePictureUrl = await getDownloadURL(snapshot.ref);
+            pendingUploadFile = null;
+        }
+
         const updatePayload = {
-            name: name,
-            phone: phone,
+            name,
+            phone,
             updatedAt: serverTimestamp()
         };
 
-        if (profilePictureBase64) {
-            updatePayload.profilePicture = profilePictureBase64;
+        if (profilePictureUrl) {
+            updatePayload.profilePicture = profilePictureUrl;
         }
 
         await updateDoc(doc(db, "users", currentAdminId), updatePayload);
 
-        // Update sidebar label & image
         const sidebarName = document.getElementById("sidebar-username");
         if (sidebarName) sidebarName.textContent = name;
 
         const sidebarAvatar = document.getElementById("sidebar-avatar");
-        if (sidebarAvatar && profilePictureBase64) {
-            sidebarAvatar.src = profilePictureBase64;
+        if (sidebarAvatar && profilePictureUrl) {
+            sidebarAvatar.src = profilePictureUrl;
         }
 
         showToast("Profile settings saved successfully", "success");
@@ -224,8 +198,43 @@ profileForm.addEventListener("submit", async (e) => {
         showToast("Failed to save profile", "error");
     } finally {
         submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Save Profile';
     }
 });
+
+// Admin Claim -- calls the setAdminClaim Cloud Function to embed the admin
+// role in the JWT so Firestore rules can use request.auth.token.role directly
+// instead of doing a document get() on every rule check.
+import {
+    getFunctions, httpsCallable
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
+
+const setAdminClaimBtn = document.getElementById("set-admin-claim-btn");
+if (setAdminClaimBtn) {
+    setAdminClaimBtn.addEventListener("click", async () => {
+        setAdminClaimBtn.disabled = true;
+        setAdminClaimBtn.innerHTML = '<span class="spinner spinner-dark"></span> Activating...';
+
+        try {
+            const functions       = getFunctions();
+            const setAdminClaim   = httpsCallable(functions, "setAdminClaim");
+            const result          = await setAdminClaim();
+            showToast(result.data.message || "Admin claim activated. Sign out and back in.", "success");
+        } catch (error) {
+            console.error("Error setting admin claim:", error);
+            if (error.code === "functions/permission-denied") {
+                showToast("Your account does not have the admin role in Firestore.", "error");
+            } else if (error.code === "functions/not-found" || error.message?.includes("NOT_FOUND")) {
+                showToast("Cloud Functions not yet deployed. Deploy functions first.", "warning");
+            } else {
+                showToast("Failed to activate claim: " + error.message, "error");
+            }
+        } finally {
+            setAdminClaimBtn.disabled = false;
+            setAdminClaimBtn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Activate Admin Claim';
+        }
+    });
+}
 
 // System Settings & M-Pesa save
 const systemSettingsForm = document.getElementById("system-settings-form");

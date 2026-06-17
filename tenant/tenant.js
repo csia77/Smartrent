@@ -1,12 +1,15 @@
 // tenant.js - tenant dashboard logic
 
-import { auth, db } from "../js/firebase-config.js";
+import { auth, db, storage } from "../js/firebase-config.js";
 import { guardPage, setupLogout, showToast } from "../js/auth-guard.js";
 import {
     doc, getDoc, updateDoc, collection, addDoc, query, where,
     onSnapshot, orderBy, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+    ref, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 // State
 let currentUserId = null;
@@ -456,52 +459,26 @@ function setupProfileForm(userData) {
     const fileInput = document.getElementById("profile-file-input");
     const urlInput = document.getElementById("profile-url-input");
 
-    let profilePictureBase64 = userData.profilePicture || null;
+    let profilePictureUrl  = userData.profilePicture || null;
+    let pendingUploadFile  = null;
 
     if (nameInput) nameInput.value = userData.name || "";
     if (phoneInput) phoneInput.value = userData.phone || "";
 
     if (profilePreview) {
-        profilePreview.src = userData.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || "Tenant")}&background=random`;
+        profilePreview.src = userData.profilePicture
+            || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || "Tenant")}&background=random`;
     }
 
     if (btnUploadPc && fileInput) {
         btnUploadPc.addEventListener("click", () => fileInput.click());
         fileInput.addEventListener("change", (e) => {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement("canvas");
-                        const maxDim = 150;
-                        let width = img.width;
-                        let height = img.height;
-                        if (width > height) {
-                            if (width > maxDim) {
-                                height *= maxDim / width;
-                                width = maxDim;
-                            }
-                        } else {
-                            if (height > maxDim) {
-                                width *= maxDim / height;
-                                height = maxDim;
-                            }
-                        }
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext("2d");
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        const base64 = canvas.toDataURL("image/jpeg", 0.75);
-                        profilePreview.src = base64;
-                        profilePictureBase64 = base64;
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
+            if (!file) return;
+            // Show a preview immediately; actual upload happens on save
+            pendingUploadFile = file;
+            profilePreview.src = URL.createObjectURL(file);
+            profilePictureUrl = null;
         });
     }
 
@@ -514,7 +491,8 @@ function setupProfileForm(userData) {
             const url = e.target.value.trim();
             if (url) {
                 profilePreview.src = url;
-                profilePictureBase64 = url;
+                profilePictureUrl = url;
+                pendingUploadFile = null;
             }
         });
     }
@@ -522,7 +500,7 @@ function setupProfileForm(userData) {
     if (profileForm) {
         profileForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const name = nameInput.value.trim();
+            const name  = nameInput.value.trim();
             const phone = phoneInput.value.trim();
 
             if (!name) {
@@ -532,16 +510,25 @@ function setupProfileForm(userData) {
 
             const saveBtn = document.getElementById("save-profile-btn");
             saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
 
             try {
+                // Upload the staged file to Firebase Storage if one is pending
+                if (pendingUploadFile) {
+                    const storageRef = ref(storage, `profiles/${currentUserId}`);
+                    const snapshot   = await uploadBytes(storageRef, pendingUploadFile);
+                    profilePictureUrl = await getDownloadURL(snapshot.ref);
+                    pendingUploadFile = null;
+                }
+
                 const payload = {
                     name,
                     phone,
                     updatedAt: serverTimestamp()
                 };
 
-                if (profilePictureBase64) {
-                    payload.profilePicture = profilePictureBase64;
+                if (profilePictureUrl) {
+                    payload.profilePicture = profilePictureUrl;
                 }
 
                 await updateDoc(doc(db, "users", currentUserId), payload);
@@ -550,8 +537,8 @@ function setupProfileForm(userData) {
                 document.getElementById("welcome-msg").textContent = `Welcome back, ${name}`;
 
                 const sidebarAvatar = document.getElementById("sidebar-avatar");
-                if (sidebarAvatar && profilePictureBase64) {
-                    sidebarAvatar.src = profilePictureBase64;
+                if (sidebarAvatar && profilePictureUrl) {
+                    sidebarAvatar.src = profilePictureUrl;
                 }
 
                 showToast("Profile updated successfully!", "success");
@@ -560,6 +547,7 @@ function setupProfileForm(userData) {
                 showToast("Failed to update profile", "error");
             } finally {
                 saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> Save Changes';
             }
         });
     }

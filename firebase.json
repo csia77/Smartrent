@@ -5,6 +5,12 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "functions": {
+    "source": "functions"
+  },
   "hosting": {
     "public": ".",
     "ignore": [
@@ -13,6 +19,8 @@
       "**/node_modules/**",
       "firestore.rules",
       "firestore.indexes.json",
+      "storage.rules",
+      "functions/**",
       "Project_Report.txt",
       "README.md"
     ],

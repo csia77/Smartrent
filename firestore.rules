@@ -9,10 +9,18 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    // Is the logged-in user an admin?
-    // Checks the role field in their user profile document.
+    // Fast path: check the custom claim set by the setAdminClaim Cloud Function.
+    // This avoids an extra Firestore document read on every rule evaluation.
+    function isAdminByToken() {
+      return isSignedIn() && request.auth.token.role == 'admin';
+    }
+
+    // Full admin check: token claim first (fast), then Firestore doc (fallback
+    // for admins who have not yet called setAdminClaim to refresh their token).
     function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return isAdminByToken()
+          || (isSignedIn()
+              && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
     }
     
     // Does the logged-in user's UID match the given userId?
